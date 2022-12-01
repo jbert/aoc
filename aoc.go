@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
-
-	"github.com/jbert/aoc/fun"
 )
 
 type Day interface {
@@ -37,7 +35,28 @@ func GetLines(d Day, day int, test bool) []string {
 		log.Fatalf("Can't read data file [%s]: %s", fname, err)
 	}
 	lines := strings.Split(string(buf), "\n")
-	return fun.Filter(func(s string) bool { return s != "" }, lines)
+	//	return fun.Filter(func(s string) bool { return s != "" }, lines)
+	if lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-2]
+	}
+	return lines
+}
+
+// Break lines into groups (separated by blank lines)
+func LineGroups(lines []string) [][]string {
+	var lgs [][]string
+	var lg []string
+	for _, l := range lines {
+		if l == "" {
+			lgs = append(lgs, lg)
+			lg = make([]string, 0)
+		} else {
+			lg = append(lg, l)
+		}
+	}
+	lgs = append(lgs, lg)
+	lg = make([]string, 0)
+	return lgs
 }
 
 func dataFileName(workDir string, day int, test bool) string {
