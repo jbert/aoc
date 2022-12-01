@@ -1,5 +1,7 @@
 package fun
 
+import "golang.org/x/exp/constraints"
+
 func Reverse[T any](l []T) []T {
 	ll := len(l)
 	rev := make([]T, ll)
@@ -25,4 +27,20 @@ func Filter[A any](pred func(A) bool, as []A) []A {
 		}
 	}
 	return fs
+}
+
+type Number interface {
+	constraints.Integer | constraints.Float
+}
+
+func Sum[A Number](as []A) A {
+	var zero A
+	return Foldl(func(a, b A) A { return a + b }, zero, as)
+}
+
+func Foldl[A any, B any](f func(A, B) B, acc B, as []A) B {
+	for _, a := range as {
+		acc = f(a, acc)
+	}
+	return acc
 }
