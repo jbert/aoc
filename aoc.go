@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -35,11 +36,18 @@ func GetLines(d Day, day int, test bool) []string {
 		log.Fatalf("Can't read data file [%s]: %s", fname, err)
 	}
 	lines := strings.Split(string(buf), "\n")
-	//	return fun.Filter(func(s string) bool { return s != "" }, lines)
 	if lines[len(lines)-1] == "" {
-		lines = lines[:len(lines)-2]
+		lines = lines[:len(lines)-1]
 	}
 	return lines
+}
+
+func MustAtoi(l string) int {
+	n, err := strconv.Atoi(l)
+	if err != nil {
+		panic(fmt.Sprintf("Line [%s] failed to be a number: %s", l, err))
+	}
+	return n
 }
 
 // Break lines into groups (separated by blank lines)
