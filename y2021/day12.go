@@ -9,7 +9,7 @@ import (
 	"github.com/jbert/aoc/graph"
 )
 
-type Day12 struct{}
+type Day12 struct{ Year }
 
 type Vertex string
 

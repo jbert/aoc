@@ -11,7 +11,7 @@ import (
 	"github.com/jbert/aoc/set"
 )
 
-type Day19 struct{}
+type Day19 struct{ Year }
 
 func NewDay19() *Day19 {
 	d := Day19{}

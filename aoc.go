@@ -11,11 +11,12 @@ import (
 )
 
 type Day interface {
+	WorkDir() string
 	Run(out io.Writer, lines []string) error
 }
 
 func Run(d Day, day int, test bool, out io.Writer) error {
-	lines := GetLines(day, test)
+	lines := GetLines(d, day, test)
 	fmt.Fprintf(out, "Lines are %v\n", lines)
 
 	err := d.Run(out, lines)
@@ -26,8 +27,11 @@ func Run(d Day, day int, test bool, out io.Writer) error {
 	return nil
 }
 
-func GetLines(day int, test bool) []string {
-	fname := dataFileName(day, test)
+type BaseDay struct {
+}
+
+func GetLines(d Day, day int, test bool) []string {
+	fname := dataFileName(d.WorkDir(), day, test)
 	buf, err := ioutil.ReadFile(fname)
 	if err != nil {
 		log.Fatalf("Can't read data file [%s]: %s", fname, err)
@@ -36,13 +40,12 @@ func GetLines(day int, test bool) []string {
 	return fun.Filter(func(s string) bool { return s != "" }, lines)
 }
 
-func dataFileName(day int, test bool) string {
-	workDir := "/home/john/dev/jbert/aoc2021"
+func dataFileName(workDir string, day int, test bool) string {
 	suffix := ""
 	if test {
 		suffix = "-test"
 	}
-	return fmt.Sprintf("%s/data/day%d%s.txt", workDir, day, suffix)
+	return fmt.Sprintf("%s/day%d%s.txt", workDir, day, suffix)
 }
 
 /*
