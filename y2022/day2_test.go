@@ -8,7 +8,7 @@ import (
 
 func TestRPS(t *testing.T) {
 	a := assert.New(t)
-	a.True(R.Beats(S))
-	a.True(S.Beats(P))
-	a.True(P.Beats(R))
+	a.True(R.WinsOver(S))
+	a.True(S.WinsOver(P))
+	a.True(P.WinsOver(R))
 }

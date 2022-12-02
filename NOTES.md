@@ -1,5 +1,7 @@
 ## Day 2
 
+### Part 1
+
 Good bug. I hit the "Bad round" panic but it printed OK!
 
 So I (sensibly) wrote some tests. Which all failed.
@@ -38,3 +40,14 @@ func DigToInt(digit byte) int {
 }
 ```
 but at what cost....
+
+### Part 2
+
+Yuck. Although this was a nice, straightforward way to do it, it was pretty
+painful. With hindsight, something like mod-3 indexing into the string "RPS"
+would be a lot nicer. Oh, just use the numbers `0,1,2` (meaning 'R', 'P', 'S') 
+and then note (all arithmetic mod 3):
+
+x beats x-1
+
+Gah. That's a lot nicer.

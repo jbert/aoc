@@ -16,7 +16,33 @@ func NewDay2() *Day2 {
 
 type RPS int
 
-func (rps RPS) Beats(other RPS) bool {
+func (rps RPS) Beats() RPS {
+	switch rps {
+	case R:
+		return S
+	case P:
+		return R
+	case S:
+		return P
+	default:
+		panic("bad rps")
+	}
+}
+
+func (rps RPS) BeatenBy() RPS {
+	switch rps {
+	case R:
+		return P
+	case P:
+		return S
+	case S:
+		return R
+	default:
+		panic("bad rps")
+	}
+}
+
+func (rps RPS) WinsOver(other RPS) bool {
 	return (rps == R && other == S) || (rps == P && other == R) || (rps == S && other == P)
 }
 
@@ -65,10 +91,10 @@ func (r Round) Score() int {
 		if r.o == r.m {
 			return 3
 		}
-		if r.m.Beats(r.o) {
+		if r.m.WinsOver(r.o) {
 			return 6
 		}
-		if r.o.Beats(r.m) {
+		if r.o.WinsOver(r.m) {
 			return 0
 		}
 		panic(fmt.Sprintf("Bad round: %s", r))
@@ -94,11 +120,61 @@ func charToRPS(c byte) RPS {
 		panic(fmt.Sprintf("Bad char: %v", c))
 	}
 }
+
 func lineToRound(l string) Round {
 	return Round{
 		o: charToRPS(l[0]),
 		m: charToRPS(l[2]),
 	}
+}
+
+type Outcome int
+
+const (
+	Lose Outcome = iota
+	Draw
+	Win
+)
+
+func charToOutcome(c byte) Outcome {
+
+	switch c {
+	case 'X':
+		return Lose
+	case 'Y':
+		return Draw
+	case 'Z':
+		return Win
+	default:
+		panic(fmt.Sprintf("Bad char: %v", c))
+	}
+}
+
+type RoundP2 struct {
+	o       RPS
+	outcome Outcome
+}
+
+func lineToRoundP2(l string) RoundP2 {
+	return RoundP2{
+		o:       charToRPS(l[0]),
+		outcome: charToOutcome(l[2]),
+	}
+}
+
+func rp2Round(rp2 RoundP2) Round {
+	r := Round{o: rp2.o}
+	switch rp2.outcome {
+	case Draw:
+		r.m = r.o
+	case Win:
+		r.m = r.o.BeatenBy()
+	case Lose:
+		r.m = r.o.Beats()
+	default:
+		panic("bad outcome")
+	}
+	return r
 }
 
 func (d *Day2) Run(out io.Writer, lines []string) error {
@@ -110,6 +186,10 @@ func (d *Day2) Run(out io.Writer, lines []string) error {
 		fmt.Printf("%s: %d\n", r, r.Score())
 	}
 	fmt.Printf("Part 1: %d\n", fun.Sum(fun.Map(func(r Round) int { return r.Score() }, rounds)))
+
+	rp2s := fun.Map(lineToRoundP2, lines)
+	p2rounds := fun.Map(rp2Round, rp2s)
+	fmt.Printf("Part 1: %d\n", fun.Sum(fun.Map(func(r Round) int { return r.Score() }, p2rounds)))
 
 	return nil
 }
