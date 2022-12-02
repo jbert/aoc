@@ -41,6 +41,8 @@ func intToDay(day int) (aoc.Day, error) {
 	switch day {
 	case 1:
 		d = year.NewDay1()
+	case 2:
+		d = year.NewDay2()
 	default:
 		return nil, fmt.Errorf("Unknown day [%d]", day)
 	}
