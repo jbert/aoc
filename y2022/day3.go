@@ -36,6 +36,14 @@ func typeToPrio(t byte) int {
 	panic("bad type")
 }
 
+func elfGroupToBadge(lines []string) byte {
+	a := set.SetFromList([]byte(lines[0]))
+	b := set.SetFromList([]byte(lines[1]))
+	c := set.SetFromList([]byte(lines[2]))
+
+	return a.Intersect(b).Intersect(c).ToList()[0]
+}
+
 func (d *Day3) Run(out io.Writer, lines []string) error {
 
 	types := fun.Map(repeatedType, lines)
@@ -43,6 +51,10 @@ func (d *Day3) Run(out io.Writer, lines []string) error {
 	prios := fun.Map(typeToPrio, types)
 	fmt.Printf("prios: %v\n", prios)
 	fmt.Printf("Part1: %d\n", fun.Sum(prios))
+
+	elfGroups := fun.SplitBy(lines, 3)
+	badges := fun.Map(elfGroupToBadge, elfGroups)
+	fmt.Printf("Part2: %d\n", fun.Sum(fun.Map(typeToPrio, badges)))
 
 	return nil
 }

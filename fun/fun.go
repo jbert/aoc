@@ -33,6 +33,16 @@ type Number interface {
 	constraints.Integer | constraints.Float
 }
 
+func Iota[A Number](start A, count int) []A {
+	l := make([]A, count)
+	current := start
+	for i := range l {
+		l[i] = current
+		current += 1
+	}
+	return l
+}
+
 func Sum[A Number](as []A) A {
 	var zero A
 	return Foldl(func(a, b A) A { return a + b }, zero, as)
@@ -43,4 +53,12 @@ func Foldl[A any, B any](f func(A, B) B, acc B, as []A) B {
 		acc = f(a, acc)
 	}
 	return acc
+}
+
+func SplitBy[A any](as []A, n int) [][]A {
+	lol := make([][]A, len(as)/n)
+	for i := range lol {
+		lol[i] = as[i*n : (i+1)*n]
+	}
+	return lol
 }
