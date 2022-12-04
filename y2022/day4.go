@@ -21,6 +21,9 @@ func (d *Day4) Run(out io.Writer, lines []string) error {
 	fmt.Printf("Part1: %d\n", len(fun.Filter(func(rp RangePair) bool {
 		return rp.a.Covers(rp.b) || rp.b.Covers(rp.a)
 	}, rangePairs)))
+	fmt.Printf("Part1: %d\n", len(fun.Filter(func(rp RangePair) bool {
+		return rp.a.Overlaps(rp.b)
+	}, rangePairs)))
 	return nil
 }
 
@@ -31,6 +34,10 @@ type RangePair struct {
 type Range struct {
 	lo int
 	hi int
+}
+
+func (r Range) Overlaps(s Range) bool {
+	return !(r.lo > s.hi || r.hi < s.lo)
 }
 
 func (r Range) Covers(s Range) bool {
