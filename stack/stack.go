@@ -29,6 +29,10 @@ func (s *Stack[A]) Push(a A) {
 	*s = append(*s, a)
 }
 
+func (s *Stack[A]) MustPeek() A {
+	return (*s)[len(*s)-1]
+}
+
 func (s *Stack[A]) MustPop() A {
 	a := (*s)[len(*s)-1]
 	*s = (*s)[:len(*s)-1]
@@ -41,4 +45,16 @@ func (s *Stack[A]) Pop() (A, bool) {
 		return a, false
 	}
 	return s.MustPop(), true
+}
+
+func (s *Stack[A]) Size() int {
+	return len(*s)
+}
+
+func (s *Stack[A]) Peek() (A, bool) {
+	if len(*s) == 0 {
+		var a A
+		return a, false
+	}
+	return s.MustPeek(), true
 }
