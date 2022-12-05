@@ -21,6 +21,7 @@ func (d *Day5) Run(out io.Writer, lines []string) error {
 	lgs := aoc.LineGroups(lines)
 	fmt.Printf("%s\n", lgs[0])
 	fmt.Printf("%s\n", lgs[1])
+
 	stacks := linesToStacks(lgs[0])
 	// fmt.Printf("Stacks: %v\n", stacks)
 	printStacks(stacks)
@@ -38,6 +39,22 @@ func (d *Day5) Run(out io.Writer, lines []string) error {
 		fmt.Printf("%c", s.MustPeek())
 	}
 	fmt.Printf("\n")
+
+	// Reset for part 2
+	stacks = linesToStacks(lgs[0])
+	applyMoveP2 := func(m Move, stacks []stack.Stack[byte]) []stack.Stack[byte] {
+		m.ApplyP2(stacks)
+		fmt.Printf("\nM: %s\n", m)
+		printStacks(stacks)
+		return stacks
+	}
+	fun.Foldl(applyMoveP2, stacks, moves)
+	fmt.Printf("Part2: ")
+	for _, s := range stacks {
+		fmt.Printf("%c", s.MustPeek())
+	}
+	fmt.Printf("\n")
+
 	return nil
 }
 
@@ -57,6 +74,18 @@ type Move struct {
 
 func (m Move) String() string {
 	return fmt.Sprintf("%d from %d -> %d", m.amount, m.from, m.to)
+}
+
+func (m Move) ApplyP2(stacks []stack.Stack[byte]) {
+	var moved []byte
+	for i := 0; i < m.amount; i++ {
+		x := stacks[m.from-1].MustPop()
+		moved = append(moved, x)
+	}
+	moved = fun.Reverse(moved)
+	for _, x := range moved {
+		stacks[m.to-1].Push(x)
+	}
 }
 
 func (m Move) Apply(stacks []stack.Stack[byte]) {
