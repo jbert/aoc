@@ -17,6 +17,80 @@ func NewDay8() *Day8 {
 
 func (d *Day8) Run(out io.Writer, lines []string) error {
 	g := aoc.IntGrid(lines)
+	err := d.Part1(g)
+	if err != nil {
+		return err
+	}
+	err = d.Part2(g)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *Day8) Part2(g grid.Grid[int]) error {
+	maxScore := 0
+	g.ForEach(func(i, j int) {
+		score := calcScore(i, j, g)
+		if score > maxScore {
+			maxScore = score
+		}
+	})
+	fmt.Printf("Part 2: %d\n", maxScore)
+	/*
+		x := 2
+		y := 1
+		fmt.Printf("%d,%d score %d\n", x, y, calcScore(x, y, g))
+	*/
+
+	return nil
+}
+
+func calcScore(x int, y int, g grid.Grid[int]) int {
+	w := g.Width()
+	h := g.Height()
+
+	height := g.Get(x, y)
+
+	rTrees := 0
+	for i := x + 1; i < w; i++ {
+		rTrees++
+		if g.Get(i, y) >= height {
+			break
+		}
+	}
+
+	lTrees := 0
+	for i := x - 1; i >= 0; i-- {
+		lTrees++
+		if g.Get(i, y) >= height {
+			break
+		}
+	}
+
+	uTrees := 0
+	for j := y + 1; j < h; j++ {
+		uTrees++
+		if g.Get(x, j) >= height {
+			break
+		}
+	}
+
+	dTrees := 0
+	for j := y - 1; j >= 0; j-- {
+		dTrees++
+		if g.Get(x, j) >= height {
+			break
+		}
+	}
+
+	score := rTrees * lTrees * uTrees * dTrees
+	//	fmt.Printf("%d, %d: (L %d, R %d, U %d, D %d) %d\n", x, y, lTrees, rTrees, uTrees, dTrees, score)
+	return score
+}
+
+func (d *Day8) Part1(g grid.Grid[int]) error {
 	w := g.Width()
 	h := g.Height()
 
@@ -68,10 +142,10 @@ func (d *Day8) Run(out io.Writer, lines []string) error {
 		}
 	}
 
-	fmt.Printf("%v\n", lVis)
-	fmt.Printf("%v\n", rVis)
-	fmt.Printf("%v\n", uVis)
-	fmt.Printf("%v\n", dVis)
+	//	fmt.Printf("%v\n", lVis)
+	//	fmt.Printf("%v\n", rVis)
+	//	fmt.Printf("%v\n", uVis)
+	//	fmt.Printf("%v\n", dVis)
 
 	or := func(a, b bool) bool { return a || b }
 	vis := lVis.Combine(rVis, or)
@@ -79,7 +153,7 @@ func (d *Day8) Run(out io.Writer, lines []string) error {
 	vis = vis.Combine(uVis, or)
 	vis = vis.Combine(dVis, or)
 
-	fmt.Printf("VIS:\n%v\n", vis)
+	//	fmt.Printf("VIS:\n%v\n", vis)
 	numVisible := 0
 	vis.ForEachVal(func(v bool) {
 		if v {
