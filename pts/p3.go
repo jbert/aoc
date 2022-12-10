@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/jbert/aoc"
 )
 
 type P3 struct {
@@ -37,16 +39,8 @@ func P3FromString(s string) P3 {
 	return p
 }
 
-func intAbs(x int) int {
-	if x < 0 {
-		return -x
-	} else {
-		return x
-	}
-}
-
 func (p P3) ManhattanLength() int {
-	return intAbs(p.X) + intAbs(p.Y) + intAbs(p.Z)
+	return aoc.IntAbs(p.X) + aoc.IntAbs(p.Y) + aoc.IntAbs(p.Z)
 }
 
 func (p P3) IsZero() bool {

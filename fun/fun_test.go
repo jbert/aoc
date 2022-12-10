@@ -26,3 +26,12 @@ func TestSplitBy(t *testing.T) {
 	a.Equal(SplitBy(l, 5), [][]int{{1, 2, 3, 4, 5}, {6, 7, 8, 9, 10}}, "exact split")
 	a.Equal(SplitBy([]int{}, 5), [][]int{}, "empty list")
 }
+
+func TestFlatten(t *testing.T) {
+	a := assert.New(t)
+
+	l := [][]int{{2, 3, 4}, {5, 6}, {7}, {}, {1, 2, 3}}
+	a.Equal([]int{2, 3, 4, 5, 6, 7, 1, 2, 3}, Flatten(l), "Can flatten list")
+	a.Equal([]int{}, Flatten([][]int{}), "can flatten zero list")
+	a.Equal([]int{}, Flatten([][]int{{}}), "can flatten zero zero list")
+}

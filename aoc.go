@@ -7,6 +7,8 @@ import (
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/jbert/aoc/grid"
 )
 
 type Day interface {
@@ -16,7 +18,9 @@ type Day interface {
 
 func Run(d Day, day int, test bool, out io.Writer) error {
 	lines := GetLines(d, day, test)
-	fmt.Fprintf(out, "Lines are %v\n", lines)
+	if test {
+		fmt.Fprintf(out, "Lines are %v\n", lines)
+	}
 
 	err := d.Run(out, lines)
 	if err != nil {
@@ -42,12 +46,32 @@ func GetLines(d Day, day int, test bool) []string {
 	return lines
 }
 
+func IntAbs(x int) int {
+	if x < 0 {
+		return -x
+	} else {
+		return x
+	}
+}
+
 func MustAtoi(l string) int {
 	n, err := strconv.Atoi(l)
 	if err != nil {
 		panic(fmt.Sprintf("Line [%s] failed to be a number: %s", l, err))
 	}
 	return n
+}
+
+// Get linesa as a digit grid
+func IntGrid(lines []string) grid.Grid[int] {
+	w := len(lines[0])
+	h := len(lines)
+	g := grid.New[int](w, h)
+	g.ForEach(func(i, j int) {
+		c := lines[j][i]
+		g.Set(i, j, int(c-'0'))
+	})
+	return g
 }
 
 // Break lines into groups (separated by blank lines)

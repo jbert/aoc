@@ -1,6 +1,8 @@
 package fun
 
-import "golang.org/x/exp/constraints"
+import (
+	"golang.org/x/exp/constraints"
+)
 
 func Reverse[T any](l []T) []T {
 	ll := len(l)
@@ -61,4 +63,14 @@ func SplitBy[A any](as []A, n int) [][]A {
 		lol[i] = as[i*n : (i+1)*n]
 	}
 	return lol
+}
+
+func Flatten[A any](ass [][]A) []A {
+	ret := make([]A, 0)
+	for _, as := range ass {
+		if len(as) > 0 {
+			ret = append(ret, as...)
+		}
+	}
+	return ret
 }
