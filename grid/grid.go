@@ -15,6 +15,14 @@ func New[A any](w, h int) Grid[A] {
 	return g
 }
 
+func (g Grid[A]) Rows() [][]A {
+	return g
+}
+
+func (g Grid[A]) Row(y int) []A {
+	return g[y]
+}
+
 func (g Grid[A]) Get(x, y int) A {
 	return g[y][x]
 }

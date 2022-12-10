@@ -7,6 +7,7 @@ import (
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/fun"
+	"github.com/jbert/aoc/grid"
 )
 
 type Day10 struct{ Year }
@@ -37,7 +38,38 @@ func (d *Day10) Run(out io.Writer, lines []string) error {
 	}
 	fmt.Printf("readings: %v\n", readings)
 	fmt.Printf("Part 1: %d\n", fun.Sum(readings))
+
+	cpu = NewCPU()
+	rows := 6
+	cols := 40
+	crt := grid.New[byte](cols, rows)
+	cpu.monitor = func(x int, cycle int) {
+		cycle--
+		//		if cycle >= 240 {
+		//			return
+		//		}
+		i := cycle % cols
+		j := cycle / cols
+		var c byte = '.'
+		if aoc.IntAbs(i-x) < 2 {
+			c = '#'
+		}
+		crt.Set(i, j, c)
+	}
+	for _, inst := range instructions {
+		cpu.Execute(inst)
+	}
+	fmt.Printf("Part 2:\n%s\n", GridToString(crt))
 	return nil
+}
+
+func GridToString(g grid.Grid[byte]) string {
+	h := g.Height()
+	b := &strings.Builder{}
+	for j := 0; j < h; j++ {
+		fmt.Fprintf(b, "%s\n", string(g.Row(j)))
+	}
+	return b.String()
 }
 
 func lineToInstruction(l string) Instruction {
