@@ -24,7 +24,7 @@ type Move struct {
 }
 
 func (m Move) String() string {
-	return fmt.Sprintf("%s: %d\n", m.dir, m.steps)
+	return fmt.Sprintf("%s: %d", m.dir, m.steps)
 }
 
 type Snake struct {
@@ -45,14 +45,17 @@ func (s *Snake) Apply(m Move) []pts.P2 {
 	return tails
 }
 
-func (s *Snake) updateTail() {
-	d := s.head.Sub(s.tail)
+func findTailUpdate(head, tail pts.P2) pts.P2 {
+	d := head.Sub(tail)
 	if aoc.IntAbs(d.X) >= 3 || aoc.IntAbs(d.Y) >= 3 {
-		panic(fmt.Sprintf("Head too far from tail: %v", s))
+		panic(fmt.Sprintf("Head too far from tail: %v -> %v", head, tail))
 	}
 	switch {
 	// Two steps away becomes 1, 1 step away becomes zero
-	case d.X == 0 || d.Y == 0 || (aoc.IntAbs(d.X) == 1 && aoc.IntAbs(d.Y) == 1):
+	case d.X == 0 ||
+		d.Y == 0 ||
+		(aoc.IntAbs(d.X) == 1 && aoc.IntAbs(d.Y) == 1) ||
+		(aoc.IntAbs(d.X) == 2 && aoc.IntAbs(d.Y) == 2):
 		d = d.Div(2)
 		// Otherwise we want to round 2's to 1's
 	case aoc.IntAbs(d.X) == 2:
@@ -60,9 +63,60 @@ func (s *Snake) updateTail() {
 	case aoc.IntAbs(d.Y) == 2:
 		d.Y /= 2
 	default:
-		panic(fmt.Sprintf("wtf: s [%s] d [%s]", s, d))
+		panic(fmt.Sprintf("wtf: d [%s]", d))
 	}
+	return d
+}
+
+func (s *Snake) updateTail() {
+	d := findTailUpdate(s.head, s.tail)
 	s.tail = s.tail.Add(d)
+}
+
+type Rope []pts.P2
+
+func NewRope(start pts.P2, length int) Rope {
+	r := make([]pts.P2, length)
+	for i := range r {
+		r[i] = start
+	}
+	return r
+}
+
+func (r Rope) Apply(m Move) []pts.P2 {
+	//	fmt.Printf("== %s ==\n", m)
+	var tails []pts.P2
+	for i := 0; i < m.steps; i++ {
+		r[0] = r[0].Add(m.dir)
+		for j := range r[1:] {
+			//			fmt.Printf("RA [%d/%d] S: %s\tM: %s\n", i, m.steps, r, m)
+			d := findTailUpdate(r[j], r[j+1])
+			r[j+1] = r[j+1].Add(d)
+		}
+		//		fmt.Printf("%s\n\n", r.Display(6, 5))
+		tails = append(tails, r[len(r)-1])
+	}
+	return tails
+}
+
+func (r Rope) Display(w, h int) string {
+	var lines []string
+	for j := 0; j < h; j++ {
+		l := make([]byte, w)
+		for i := 0; i < w; i++ {
+			l[i] = '.'
+			for ri := range r {
+				if l[i] == '.' && r[ri].Equals(pts.P2{i, j}) {
+					l[i] = byte(ri) + '0'
+					if ri == 0 {
+						l[i] = 'H'
+					}
+				}
+			}
+		}
+		lines = append(lines, string(l))
+	}
+	return strings.Join(fun.Reverse(lines), "\n")
 }
 
 func (d *Day9) Run(out io.Writer, lines []string) error {
@@ -75,12 +129,23 @@ func (d *Day9) Run(out io.Writer, lines []string) error {
 	tailBeen := set.New[pts.P2]()
 	tailBeen.Insert(zero)
 	for _, move := range moves {
-		fmt.Printf("Before S: %s\tM: %s\n", snake, move)
+		//		fmt.Printf("Before S: %s\tM: %s\n", snake, move)
 		tails := snake.Apply(move)
 		tailBeen.InsertList(tails)
-		fmt.Printf("After  S: %s\tM: %s\n", snake, move)
+		//		fmt.Printf("After  S: %s\tM: %s\n", snake, move)
 	}
 	fmt.Printf("Part 1: %d\n", tailBeen.Size())
+
+	rope := NewRope(zero, 10)
+	tailBeen = set.New[pts.P2]()
+	for _, move := range moves {
+		//		fmt.Printf("Before S: %s\tM: %s\n", rope, move)
+		tails := rope.Apply(move)
+		tailBeen.InsertList(tails)
+		//		fmt.Printf("%s\n\n", rope.Display(6, 6))
+		//		fmt.Printf("After  S: %s\tM: %s\n", rope, move)
+	}
+	fmt.Printf("Part 2: %d\n", tailBeen.Size())
 	return nil
 }
 

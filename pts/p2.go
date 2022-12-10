@@ -86,3 +86,7 @@ func (p P2) Less(q P2) bool {
 func (p P2) Div(n int) P2 {
 	return P2{p.X / 2, p.Y / 2}
 }
+
+func (p P2) Equals(q P2) bool {
+	return p.X == q.X && p.Y == q.Y
+}
