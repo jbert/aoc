@@ -1,3 +1,58 @@
+## Day 11
+
+### Part 2
+
+So, I thought I just needed to go to int64. I was wrong. This wasn't obvious
+as I wasn't dumping the intermediate values, just the results.
+
+The bolded text to 'hint' that we needed to avoid big numbers led me to int64
+but also didn't seem to quite fit. That - and the background concept of
+divisibility - was enough to make me think of modular arithmetic.
+
+I started thinking I could just have a modulus per monkey (with it's divisor)
+but realised the passing between would break that, hence the LCM.
+
+## Day 10
+
+I do *love* implementing a virtual machine. The main thing to get right here
+was ensuring we could inspect at ticks "between" instructions. I started off
+thinking I'd use a goro to provide the instruction stream and drive the cpu
+with a function call per tick, but that required keeping more state than I
+wanted in the CPU (current instruction, cycles consumed etc) and the 'monitor'
+callback suggested itself as a nicer alternative.
+
+I also find myself thinking ahead to what the part 2 might be, and trying to
+ensure I don't have a too-convoluted codebase/abstraction so that I'm well
+prepared.
+
+## Day 9
+
+A fairly straightforward part 1, but I was flummoxed by part 2 until I did the
+work to display intermediate stages exactly as in the text. This showed the
+exact step which was failing, which - together with the 'be careful' hint that
+more types of motion are possible - was enough.
+
+## Day 8
+
+A bit unsatisfying. I didn't see much opportunity for code sharing between the
+different directions. I guess some kind of directional looping abstraction
+might work?
+
+## Day 5
+
+This looked like it was going to be tricky to parse, but shortcuts worked
+well, together with a nice 'stack' abstraction.
+
+## Day 4
+
+Handling the endpoints of the ranges can get quite crunchy - it is easy to
+make mistakes on the different cases. Judicious use of reversing to consider
+a.Covers(b) and b.Covers(a) simplifies things pretty well.
+
+## Day 3
+
+The 'set' abstraction makes this super easy.
+
 ## Day 2
 
 ### Part 1

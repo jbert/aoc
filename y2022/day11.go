@@ -19,59 +19,72 @@ func NewDay11() *Day11 {
 
 func (d *Day11) Run(out io.Writer, lines []string) error {
 	lgs := aoc.LineGroups(lines)
-	monkeys := fun.Map(lineGroupToMonkey, lgs)
-	fmt.Printf("%v\n", monkeys)
 
-	rounds := 20
-	inspected := make([]int, len(monkeys))
+	fmt.Printf("Part 1: %d\n", DoPart(lgs, 20, true))
+	fmt.Printf("Part 2: %d\n", DoPart(lgs, 10000, false))
+	return nil
+}
+
+func DoPart(lgs [][]string, rounds int, doDiv3 bool) int64 {
+	monkeys := fun.Map(lineGroupToMonkey, lgs)
+	//	fmt.Printf("%v\n", monkeys)
+
+	lcm := fun.Prod(fun.Map(func(m *Monkey) int64 { return m.divisible }, monkeys))
+	fmt.Printf("LCM: %d\n", lcm)
+
+	inspected := make([]int64, len(monkeys))
 	for round := 1; round < rounds+1; round++ {
 		for j, m := range monkeys {
-			numInspected := m.Turn(monkeys)
+			numInspected := m.Turn(monkeys, doDiv3, lcm)
 			inspected[j] += numInspected
 		}
-		fmt.Printf("Round %d:\n", round)
-		for i, m := range monkeys {
-			fmt.Printf("Monkey: %d: %v\n", i, m.items)
+		if round%1000 == 0 {
+			fmt.Printf("Round %d:\n", round)
+			for i, m := range monkeys {
+				fmt.Printf("Monkey: %d: %v\n", i, m.items)
+			}
 		}
 	}
 	for i, ins := range inspected {
 		fmt.Printf("Monkey %d inspected items %d times.\n", i, ins)
 	}
-	sort.Ints(inspected)
+	//	sort.Ints(inspected)
+	sort.Slice(inspected, func(i, j int) bool { return inspected[i] < inspected[j] })
 	inspected = fun.Reverse(inspected)
-	fmt.Printf("Part 1: %d\n", inspected[0]*inspected[1])
-	return nil
+	return inspected[0] * inspected[1]
 }
 
 type Monkey struct {
 	id    int
-	items []int
+	items []int64
 
 	op       string
-	arg      int
+	arg      int64
 	argIsOld bool
 
-	divisible int
+	divisible int64
 	ifTrue    int
 	ifFalse   int
 }
 
-func (m *Monkey) Turn(monkeys []*Monkey) int {
+func (m *Monkey) Turn(monkeys []*Monkey, doDiv3 bool, lcm int64) int64 {
 	for i := range m.items {
 		m.items[i] = m.inspect(m.items[i])
-		m.items[i] /= 3
+		if doDiv3 {
+			m.items[i] /= 3
+		}
 		if m.items[i]%m.divisible == 0 {
-			monkeys[m.ifTrue].items = append(monkeys[m.ifTrue].items, m.items[i])
+			monkeys[m.ifTrue].items = append(monkeys[m.ifTrue].items, m.items[i]%lcm)
 		} else {
-			monkeys[m.ifFalse].items = append(monkeys[m.ifFalse].items, m.items[i])
+			monkeys[m.ifFalse].items = append(monkeys[m.ifFalse].items, m.items[i]%lcm)
 		}
 	}
 	l := len(m.items)
 	m.items = nil
-	return l
+	return int64(l)
 }
 
-func (m *Monkey) inspect(old int) int {
+func (m *Monkey) inspect(old int64) int64 {
 	a := old
 	b := m.arg
 	if m.argIsOld {
@@ -110,7 +123,7 @@ func lineGroupToMonkey(lg []string) *Monkey {
 	m := Monkey{}
 
 	i := strings.Index(lg[1], ": ") + 2
-	m.items = fun.Map(aoc.MustAtoi, strings.Split(lg[1][i:], ", "))
+	m.items = fun.Map(aoc.MustAtoi64, strings.Split(lg[1][i:], ", "))
 
 	i = strings.Index(lg[2], "new = old ") + 10
 	bits := strings.Split(lg[2][i:], " ")
@@ -119,11 +132,11 @@ func lineGroupToMonkey(lg []string) *Monkey {
 	if bits[1] == "old" {
 		m.argIsOld = true
 	} else {
-		m.arg = aoc.MustAtoi(bits[1])
+		m.arg = aoc.MustAtoi64(bits[1])
 	}
 
 	i = strings.Index(lg[3], "divisible by ") + 13
-	m.divisible = aoc.MustAtoi(lg[3][i:])
+	m.divisible = aoc.MustAtoi64(lg[3][i:])
 
 	i = strings.Index(lg[4], "monkey ") + 7
 	m.ifTrue = aoc.MustAtoi(lg[4][i:])

@@ -54,6 +54,14 @@ func IntAbs(x int) int {
 	}
 }
 
+func MustAtoi64(l string) int64 {
+	n, err := strconv.ParseInt(l, 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("Line [%s] failed to be a number: %s", l, err))
+	}
+	return n
+}
+
 func MustAtoi(l string) int {
 	n, err := strconv.Atoi(l)
 	if err != nil {

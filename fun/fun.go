@@ -50,6 +50,11 @@ func Sum[A Number](as []A) A {
 	return Foldl(func(a, b A) A { return a + b }, zero, as)
 }
 
+func Prod[A Number](as []A) A {
+	var one A = 1
+	return Foldl(func(a, b A) A { return a * b }, one, as)
+}
+
 func Foldl[A any, B any](f func(A, B) B, acc B, as []A) B {
 	for _, a := range as {
 		acc = f(a, acc)
