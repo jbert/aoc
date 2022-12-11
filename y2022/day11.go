@@ -3,6 +3,7 @@ package y2022
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 
 	"github.com/jbert/aoc"
@@ -20,6 +21,25 @@ func (d *Day11) Run(out io.Writer, lines []string) error {
 	lgs := aoc.LineGroups(lines)
 	monkeys := fun.Map(lineGroupToMonkey, lgs)
 	fmt.Printf("%v\n", monkeys)
+
+	rounds := 20
+	inspected := make([]int, len(monkeys))
+	for round := 1; round < rounds+1; round++ {
+		for j, m := range monkeys {
+			numInspected := m.Turn(monkeys)
+			inspected[j] += numInspected
+		}
+		fmt.Printf("Round %d:\n", round)
+		for i, m := range monkeys {
+			fmt.Printf("Monkey: %d: %v\n", i, m.items)
+		}
+	}
+	for i, ins := range inspected {
+		fmt.Printf("Monkey %d inspected items %d times.\n", i, ins)
+	}
+	sort.Ints(inspected)
+	inspected = fun.Reverse(inspected)
+	fmt.Printf("Part 1: %d\n", inspected[0]*inspected[1])
 	return nil
 }
 
@@ -34,6 +54,41 @@ type Monkey struct {
 	divisible int
 	ifTrue    int
 	ifFalse   int
+}
+
+func (m *Monkey) Turn(monkeys []*Monkey) int {
+	for i := range m.items {
+		m.items[i] = m.inspect(m.items[i])
+		m.items[i] /= 3
+		if m.items[i]%m.divisible == 0 {
+			monkeys[m.ifTrue].items = append(monkeys[m.ifTrue].items, m.items[i])
+		} else {
+			monkeys[m.ifFalse].items = append(monkeys[m.ifFalse].items, m.items[i])
+		}
+	}
+	l := len(m.items)
+	m.items = nil
+	return l
+}
+
+func (m *Monkey) inspect(old int) int {
+	a := old
+	b := m.arg
+	if m.argIsOld {
+		b = old
+	}
+	switch m.op {
+	case "+":
+		return a + b
+	case "-":
+		return a - b
+	case "*":
+		return a * b
+	case "/":
+		return a / b
+	default:
+		panic("wtf")
+	}
 }
 
 func (m *Monkey) String() string {
@@ -74,6 +129,6 @@ func lineGroupToMonkey(lg []string) *Monkey {
 	m.ifTrue = aoc.MustAtoi(lg[4][i:])
 
 	i = strings.Index(lg[5], "monkey ") + 7
-	m.ifTrue = aoc.MustAtoi(lg[5][i:])
+	m.ifFalse = aoc.MustAtoi(lg[5][i:])
 	return &m
 }
