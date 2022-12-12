@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jbert/aoc"
+	"github.com/jbert/aoc/num"
 )
 
 type P2 struct {
@@ -52,7 +52,7 @@ func P2FromString(s string) P2 {
 }
 
 func (p P2) ManhattanLength() int {
-	return aoc.IntAbs(p.X) + aoc.IntAbs(p.Y)
+	return num.IntAbs(p.X) + num.IntAbs(p.Y)
 }
 
 func (p P2) IsZero() bool {

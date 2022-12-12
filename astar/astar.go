@@ -31,6 +31,7 @@ func Astar[V comparable](start V, goal V, g Graph[V], heuristicCost func(v V) fl
 	fScore[start] = heuristicCost(start)
 
 	for !openSet.IsEmpty() {
+		//		fmt.Printf("L: %v\n", openSet)
 		current := findLowestScore(openSet, fScore)
 		if current == goal {
 			return reconstructPath(cameFrom, current), nil
@@ -38,6 +39,7 @@ func Astar[V comparable](start V, goal V, g Graph[V], heuristicCost func(v V) fl
 
 		openSet.Remove(current)
 		for _, neighbour := range g.Neighbours(current) {
+			//			fmt.Printf("N: %v\n", neighbour)
 			tentativeGscore := gScore[current] + g.Weight(current, neighbour)
 			neighbourGscore, ok := gScore[neighbour]
 			if !ok {
