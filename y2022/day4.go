@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/fun"
+	"github.com/jbert/aoc/num"
 )
 
 type Day4 struct{ Year }
@@ -47,8 +47,8 @@ func (r Range) Covers(s Range) bool {
 func parseRange(l string) Range {
 	bits := strings.Split(l, "-")
 	return Range{
-		lo: aoc.MustAtoi(bits[0]),
-		hi: aoc.MustAtoi(bits[1]),
+		lo: num.MustAtoi(bits[0]),
+		hi: num.MustAtoi(bits[1]),
 	}
 }
 

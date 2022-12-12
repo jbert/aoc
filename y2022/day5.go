@@ -7,6 +7,7 @@ import (
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/fun"
+	"github.com/jbert/aoc/num"
 	"github.com/jbert/aoc/stack"
 )
 
@@ -98,9 +99,9 @@ func (m StackMove) Apply(stacks []stack.Stack[byte]) {
 func moveFromLine(l string) StackMove {
 	bits := strings.Split(l, " ")
 	return StackMove{
-		from:   aoc.MustAtoi(bits[3]),
-		to:     aoc.MustAtoi(bits[5]),
-		amount: aoc.MustAtoi(bits[1]),
+		from:   num.MustAtoi(bits[3]),
+		to:     num.MustAtoi(bits[5]),
+		amount: num.MustAtoi(bits[1]),
 	}
 }
 

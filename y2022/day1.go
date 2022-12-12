@@ -7,6 +7,7 @@ import (
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/fun"
+	"github.com/jbert/aoc/num"
 )
 
 type Day1 struct{ Year }
@@ -23,7 +24,7 @@ func (d *Day1) Run(out io.Writer, lines []string) error {
 
 	maxCalories := 0
 	for _, lg := range lgs {
-		ns := fun.Map(aoc.MustAtoi, lg)
+		ns := fun.Map(num.MustAtoi, lg)
 		calories := fun.Sum(ns)
 		if calories > maxCalories {
 			maxCalories = calories
@@ -32,7 +33,7 @@ func (d *Day1) Run(out io.Writer, lines []string) error {
 	fmt.Printf("Part1: %d\n", maxCalories)
 
 	ngs := fun.Map(func(lg []string) []int {
-		return fun.Map(aoc.MustAtoi, lg)
+		return fun.Map(num.MustAtoi, lg)
 	}, lgs)
 	// Sort biggest first
 	sort.Slice(ngs, func(i, j int) bool {

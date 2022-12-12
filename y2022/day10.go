@@ -5,9 +5,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/fun"
 	"github.com/jbert/aoc/grid"
+	"github.com/jbert/aoc/num"
 )
 
 type Day10 struct{ Year }
@@ -51,7 +51,7 @@ func (d *Day10) Run(out io.Writer, lines []string) error {
 		i := cycle % cols
 		j := cycle / cols
 		var c byte = '.'
-		if aoc.IntAbs(i-x) < 2 {
+		if num.IntAbs(i-x) < 2 {
 			c = '#'
 		}
 		crt.Set(i, j, c)
@@ -77,7 +77,7 @@ func lineToInstruction(l string) Instruction {
 	if len(bits) == 1 {
 		return Instruction{kind: bits[0]}
 	}
-	return Instruction{kind: bits[0], arg: aoc.MustAtoi(bits[1])}
+	return Instruction{kind: bits[0], arg: num.MustAtoi(bits[1])}
 }
 
 type Instruction struct {

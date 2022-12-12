@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/jbert/aoc/grid"
@@ -46,28 +45,16 @@ func GetLines(d Day, day int, test bool) []string {
 	return lines
 }
 
-func IntAbs(x int) int {
-	if x < 0 {
-		return -x
-	} else {
-		return x
-	}
-}
-
-func MustAtoi64(l string) int64 {
-	n, err := strconv.ParseInt(l, 10, 64)
-	if err != nil {
-		panic(fmt.Sprintf("Line [%s] failed to be a number: %s", l, err))
-	}
-	return n
-}
-
-func MustAtoi(l string) int {
-	n, err := strconv.Atoi(l)
-	if err != nil {
-		panic(fmt.Sprintf("Line [%s] failed to be a number: %s", l, err))
-	}
-	return n
+// Get linesa as a char/byte grid
+func ByteGrid(lines []string) grid.Grid[byte] {
+	w := len(lines[0])
+	h := len(lines)
+	g := grid.New[byte](w, h)
+	g.ForEach(func(i, j int) {
+		c := lines[j][i]
+		g.Set(i, j, c)
+	})
+	return g
 }
 
 // Get linesa as a digit grid

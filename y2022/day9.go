@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/fun"
+	"github.com/jbert/aoc/num"
 	"github.com/jbert/aoc/pts"
 	"github.com/jbert/aoc/set"
 )
@@ -47,20 +47,20 @@ func (s *Snake) Apply(m Move) []pts.P2 {
 
 func findTailUpdate(head, tail pts.P2) pts.P2 {
 	d := head.Sub(tail)
-	if aoc.IntAbs(d.X) >= 3 || aoc.IntAbs(d.Y) >= 3 {
+	if num.IntAbs(d.X) >= 3 || num.IntAbs(d.Y) >= 3 {
 		panic(fmt.Sprintf("Head too far from tail: %v -> %v", head, tail))
 	}
 	switch {
 	// Two steps away becomes 1, 1 step away becomes zero
 	case d.X == 0 ||
 		d.Y == 0 ||
-		(aoc.IntAbs(d.X) == 1 && aoc.IntAbs(d.Y) == 1) ||
-		(aoc.IntAbs(d.X) == 2 && aoc.IntAbs(d.Y) == 2):
+		(num.IntAbs(d.X) == 1 && num.IntAbs(d.Y) == 1) ||
+		(num.IntAbs(d.X) == 2 && num.IntAbs(d.Y) == 2):
 		d = d.Div(2)
 		// Otherwise we want to round 2's to 1's
-	case aoc.IntAbs(d.X) == 2:
+	case num.IntAbs(d.X) == 2:
 		d.X /= 2
-	case aoc.IntAbs(d.Y) == 2:
+	case num.IntAbs(d.Y) == 2:
 		d.Y /= 2
 	default:
 		panic(fmt.Sprintf("wtf: d [%s]", d))
@@ -166,6 +166,6 @@ func lineToMove(l string) Move {
 	}
 	return Move{
 		dir:   dir,
-		steps: aoc.MustAtoi(bits[1]),
+		steps: num.MustAtoi(bits[1]),
 	}
 }

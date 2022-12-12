@@ -8,6 +8,7 @@ import (
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/fun"
+	"github.com/jbert/aoc/num"
 )
 
 type Day11 struct{ Year }
@@ -123,7 +124,7 @@ func lineGroupToMonkey(lg []string) *Monkey {
 	m := Monkey{}
 
 	i := strings.Index(lg[1], ": ") + 2
-	m.items = fun.Map(aoc.MustAtoi64, strings.Split(lg[1][i:], ", "))
+	m.items = fun.Map(num.MustAtoi64, strings.Split(lg[1][i:], ", "))
 
 	i = strings.Index(lg[2], "new = old ") + 10
 	bits := strings.Split(lg[2][i:], " ")
@@ -132,16 +133,16 @@ func lineGroupToMonkey(lg []string) *Monkey {
 	if bits[1] == "old" {
 		m.argIsOld = true
 	} else {
-		m.arg = aoc.MustAtoi64(bits[1])
+		m.arg = num.MustAtoi64(bits[1])
 	}
 
 	i = strings.Index(lg[3], "divisible by ") + 13
-	m.divisible = aoc.MustAtoi64(lg[3][i:])
+	m.divisible = num.MustAtoi64(lg[3][i:])
 
 	i = strings.Index(lg[4], "monkey ") + 7
-	m.ifTrue = aoc.MustAtoi(lg[4][i:])
+	m.ifTrue = num.MustAtoi(lg[4][i:])
 
 	i = strings.Index(lg[5], "monkey ") + 7
-	m.ifFalse = aoc.MustAtoi(lg[5][i:])
+	m.ifFalse = num.MustAtoi(lg[5][i:])
 	return &m
 }
