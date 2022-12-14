@@ -22,9 +22,9 @@ func (d *Day12) Run(out io.Writer, lines []string) error {
 	g := aoc.ByteGrid(lines)
 	fmt.Printf("%s\n", g)
 
-	start := pts.P2{0, 0}
-	goal := findGoal(g)
-	hc := func(p pts.P2) float64 { return 1.0 }
+	start := findChar(g, 'S')
+	goal := findChar(g, 'E')
+	hc := func(p pts.P2) float64 { return float64(p.ManhattanLength()) }
 
 	hg := HeightGrid{start: start, goal: goal, g: g}
 	path, err := astar.Astar(start, goal, astar.Graph[pts.P2](hg), hc)
@@ -36,11 +36,11 @@ func (d *Day12) Run(out io.Writer, lines []string) error {
 	return nil
 }
 
-func findGoal(g grid.Grid[byte]) pts.P2 {
+func findChar(g grid.Grid[byte], c byte) pts.P2 {
 	found := false
 	var p pts.P2
 	g.ForEachV(func(i, j int, v byte) {
-		if v == 'E' {
+		if v == c {
 			found = true
 			p = pts.P2{i, j}
 		}
@@ -67,13 +67,22 @@ type HeightGrid struct {
 
 func (hg HeightGrid) Neighbours(p pts.P2) []pts.P2 {
 	nps := hg.g.CardinalNeighbourPts(p)
-	//	fmt.Printf("NPS: %v (%v)\n", nps, p)
 
 	height := hg.g.GetPt(p)
+	if height == 'S' {
+		height = 'a'
+	}
 	canStep := func(q pts.P2) bool {
-		return p.Equals(hg.start) || (height == 'z' && q.Equals(hg.goal)) || hg.g.GetPt(q)-height <= 1
+		qHeight := hg.g.GetPt(q)
+		if qHeight == 'E' {
+			qHeight = 'z'
+		}
+		ok := qHeight < height || qHeight-height <= 1
+		//		fmt.Printf("%s -> %s: %c -> %c (%c): %v (%d)\n", p, q, height, qHeight, hg.g.GetPt(q), ok, qHeight-height)
+		return ok
 	}
 	filtered := fun.Filter(canStep, nps)
+	//	fmt.Printf("%s: %c (NPS: %v)\n", p, height, filtered)
 	return filtered
 }
 

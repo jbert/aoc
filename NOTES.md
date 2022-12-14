@@ -1,3 +1,14 @@
+## Day 12
+
+Gah! Two big mistakes.
+
+Firstly, I was using byte subtraction to check I was only moving up one step.
+But golang bytes are unsigned! So moving down one step was up 254. D'oh.
+
+Secondly, I was trying and trying to debug my astar, before I realised two
+days later that the actual problem doesn't have the starting S in (0,0).
+That's just mean.
+
 ## Day 11
 
 ### Part 2
