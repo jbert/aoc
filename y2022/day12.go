@@ -3,6 +3,8 @@ package y2022
 import (
 	"fmt"
 	"io"
+	"math"
+	"sort"
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/astar"
@@ -33,22 +35,41 @@ func (d *Day12) Run(out io.Writer, lines []string) error {
 	}
 	fmt.Printf("Path: %v\n", path)
 	fmt.Printf("Part 1: %d\n", len(path)-1)
+
+	starts := findAll(g, 'a')
+	starts = append(starts, findChar(g, 'S'))
+	fmt.Printf("%d possible starts\n", len(starts))
+	findPathLen := func(p pts.P2) int {
+		path, err := astar.Astar(p, goal, astar.Graph[pts.P2](hg), hc)
+		if err != nil {
+			//			fmt.Printf("Can't find path: %s\n", err)
+			return math.MaxInt
+		}
+		//		fmt.Printf("%s -> %d (%v)\n", p, len(path)-1, path)
+		return len(path) - 1
+	}
+	lengths := fun.Map(findPathLen, starts)
+	sort.Ints(lengths)
+	fmt.Printf("Part 2: %d\n", lengths[0])
 	return nil
 }
 
-func findChar(g grid.Grid[byte], c byte) pts.P2 {
-	found := false
-	var p pts.P2
+func findAll(g grid.Grid[byte], c byte) []pts.P2 {
+	var ps []pts.P2
 	g.ForEachV(func(i, j int, v byte) {
 		if v == c {
-			found = true
-			p = pts.P2{i, j}
+			ps = append(ps, pts.P2{i, j})
 		}
 	})
-	if !found {
+	return ps
+}
+
+func findChar(g grid.Grid[byte], c byte) pts.P2 {
+	ps := findAll(g, c)
+	if len(ps) != 1 {
 		panic("wtf")
 	}
-	return p
+	return ps[0]
 }
 
 // Implement astar.Graph interface over the byte grid and puzzle rules
@@ -76,6 +97,9 @@ func (hg HeightGrid) Neighbours(p pts.P2) []pts.P2 {
 		qHeight := hg.g.GetPt(q)
 		if qHeight == 'E' {
 			qHeight = 'z'
+		}
+		if qHeight == 'S' {
+			qHeight = 'a'
 		}
 		ok := qHeight < height || qHeight-height <= 1
 		//		fmt.Printf("%s -> %s: %c -> %c (%c): %v (%d)\n", p, q, height, qHeight, hg.g.GetPt(q), ok, qHeight-height)
