@@ -18,19 +18,7 @@ func NewDay14() *Day14 {
 }
 
 func (d *Day14) Run(out io.Writer, lines []string) error {
-	g := grid.NewSparse[byte]('.')
-	for _, l := range lines {
-		bits := strings.Split(l, " ")
-		current := pts.P2FromString(bits[0])
-		for _, b := range bits[1:] {
-			if b == "->" {
-				continue
-			}
-			next := pts.P2FromString(b)
-			addLine(g, current, next, '#')
-			current = next
-		}
-	}
+	g := linesToGrid(lines)
 	fmt.Printf("%s\n", gridString(g))
 
 	sandSource := pts.P2{500, 0}
@@ -44,7 +32,38 @@ func (d *Day14) Run(out io.Writer, lines []string) error {
 	fmt.Printf("%s\n", gridString(g))
 	fmt.Printf("Part 1: %d\n", units)
 
+	g = linesToGrid(lines)
+	floorY := g.MaxY + 2
+	floorSafeMinX := sandSource.X - 2*floorY
+	floorSafeMaxX := sandSource.X + 2*floorY
+	addLine(g, pts.P2{floorSafeMinX, floorY}, pts.P2{floorSafeMaxX, floorY}, '#')
+
+	units = 0
+	for g.GetPt(sandSource) == '.' {
+		addSand(g, sandSource)
+		units++
+	}
+	fmt.Printf("%s\n", gridString(g))
+	fmt.Printf("Part 2: %d\n", units)
+
 	return nil
+}
+
+func linesToGrid(lines []string) *grid.Sparse[byte] {
+	g := grid.NewSparse[byte]('.')
+	for _, l := range lines {
+		bits := strings.Split(l, " ")
+		current := pts.P2FromString(bits[0])
+		for _, b := range bits[1:] {
+			if b == "->" {
+				continue
+			}
+			next := pts.P2FromString(b)
+			addLine(g, current, next, '#')
+			current = next
+		}
+	}
+	return g
 }
 
 func addSand(g *grid.Sparse[byte], sand pts.P2) bool {
