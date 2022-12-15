@@ -1,0 +1,62 @@
+package y2022
+
+import (
+	"fmt"
+	"io"
+	"strings"
+
+	"github.com/jbert/aoc/grid"
+	"github.com/jbert/aoc/num"
+	"github.com/jbert/aoc/pts"
+)
+
+type Day14 struct{ Year }
+
+func NewDay14() *Day14 {
+	d := Day14{}
+	return &d
+}
+
+func (d *Day14) Run(out io.Writer, lines []string) error {
+	g := grid.NewSparse[byte]('.')
+	for _, l := range lines {
+		bits := strings.Split(l, " ")
+		current := pts.P2FromString(bits[0])
+		for _, b := range bits[1:] {
+			if b == "->" {
+				continue
+			}
+			next := pts.P2FromString(b)
+			addLine(g, current, next, '#')
+			current = next
+		}
+	}
+	fmt.Printf("%s\n", gridString(g))
+	return nil
+}
+
+func gridString(g *grid.Sparse[byte]) string {
+	b := &strings.Builder{}
+	fmt.Printf("X: %d - %d, Y %d - %d\n\n", g.MinX, g.MaxX, g.MinY, g.MaxY)
+	for y := g.MinY; y <= g.MaxY; y++ {
+		for x := g.MinX; x <= g.MaxX; x++ {
+			fmt.Fprintf(b, "%c", g.GetPt(pts.P2{x, y}))
+		}
+		fmt.Fprintf(b, "\n")
+	}
+	return b.String()
+}
+
+func addLine(g *grid.Sparse[byte], from pts.P2, to pts.P2, c byte) {
+	//	fmt.Printf("Line from [%s] to [%s]\n", from, to)
+	d := to.Sub(from)
+	if d.X != 0 && d.Y != 0 {
+		panic(fmt.Sprintf("Line not recti: %s", d))
+	}
+	d.X = num.Sign(d.X)
+	d.Y = num.Sign(d.Y)
+	for p := from; !p.Equals(to); p = p.Add(d) {
+		g.SetPt(p, c)
+	}
+	g.SetPt(to, c)
+}

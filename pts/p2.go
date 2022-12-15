@@ -34,8 +34,8 @@ func (p P2) String() string {
 
 func P2FromString(s string) P2 {
 	bits := strings.Split(s, ",")
-	if len(bits) != 3 {
-		panic(fmt.Sprintf("Don't have 3 bits: [%s]", s))
+	if len(bits) != 2 {
+		panic(fmt.Sprintf("Don't have 2 bits: [%s]", s))
 	}
 	var p P2
 	var err error
