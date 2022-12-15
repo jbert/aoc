@@ -35,3 +35,15 @@ func TestFlatten(t *testing.T) {
 	a.Equal([]int{}, Flatten([][]int{}), "can flatten zero list")
 	a.Equal([]int{}, Flatten([][]int{{}}), "can flatten zero zero list")
 }
+
+func TestMinMax(t *testing.T) {
+	a := assert.New(t)
+
+	a.Equal(Min([]int{1, 2, 3, 4}), 1, "Find start")
+	a.Equal(Min([]int{2, 3, 4, 1}), 1, "Find end")
+	a.Equal(Min([]int{2, 1, 4, 3}), 1, "Find middle")
+
+	a.Equal(Max([]int{4, 1, 2, 3}), 4, "Find start")
+	a.Equal(Max([]int{2, 3, 1, 4}), 4, "Find end")
+	a.Equal(Max([]int{2, 1, 4, 3}), 4, "Find middle")
+}

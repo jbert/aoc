@@ -4,6 +4,10 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+func Id[T any](a T) T {
+	return a
+}
+
 func Reverse[T any](l []T) []T {
 	ll := len(l)
 	rev := make([]T, ll)
@@ -43,6 +47,44 @@ func Iota[A Number](start A, count int) []A {
 		current += 1
 	}
 	return l
+}
+
+func AllBool(bs []bool) bool {
+	for _, b := range bs {
+		if !b {
+			return false
+		}
+	}
+	return true
+}
+
+func AnyBool(bs []bool) bool {
+	for _, b := range bs {
+		if b {
+			return true
+		}
+	}
+	return false
+}
+
+func Min[A Number](as []A) A {
+	return Foldl(func(a, m A) A {
+		if a < m {
+			return a
+		} else {
+			return m
+		}
+	}, as[0], as)
+}
+
+func Max[A Number](as []A) A {
+	return Foldl(func(a, m A) A {
+		if a > m {
+			return a
+		} else {
+			return m
+		}
+	}, as[0], as)
 }
 
 func Sum[A Number](as []A) A {
