@@ -3,6 +3,7 @@ package y2022
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -31,6 +32,26 @@ func (d *Day13) Run(out io.Writer, lines []string) error {
 		}
 	}
 	fmt.Printf("Part 1: %d\n", rightOrderSum)
+
+	packets := fun.Map(lineToPacket, fun.Filter(func(l string) bool { return len(l) > 0 }, lines))
+	packets = append(packets, lineToPacket("[[2]]"))
+	packets = append(packets, lineToPacket("[[6]]"))
+	sort.Slice(packets, func(i, j int) bool {
+		return packets[i].Cmp(packets[j]) == -1
+	})
+
+	div1 := 0
+	div2 := 0
+	for i, p := range packets {
+		if p.String() == "[[2]]" {
+			div1 = i + 1
+		}
+		if p.String() == "[[6]]" {
+			div2 = i + 1
+		}
+	}
+	fmt.Printf("Part 2: %d\n", div1*div2)
+
 	return nil
 }
 
