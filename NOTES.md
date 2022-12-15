@@ -1,3 +1,8 @@
+## Day 13
+
+Tried a couple of things to make the parsing easier, but ultimately "char at a
+time switch, recursively handle lists" gets me there with least friction.
+
 ## Day 12
 
 Gah! Two big mistakes.

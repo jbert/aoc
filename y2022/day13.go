@@ -21,9 +21,16 @@ func NewDay13() *Day13 {
 func (d *Day13) Run(out io.Writer, lines []string) error {
 	lgs := aoc.LineGroups(lines)
 	pairs := fun.Map(lineGroupToPair, lgs)
-	for _, p := range pairs {
-		fmt.Printf("%s\n%s\n\n", p.a, p.b)
+	rightOrderSum := 0
+	for i, p := range pairs {
+		fmt.Printf("%s\n%s\n", p.a, p.b)
+		fmt.Printf("Right order? %v\n", p.RightOrder())
+		fmt.Printf("\n")
+		if p.RightOrder() {
+			rightOrderSum += i + 1
+		}
 	}
+	fmt.Printf("Part 1: %d\n", rightOrderSum)
 	return nil
 }
 
@@ -33,6 +40,14 @@ type Pair struct {
 
 func (p Pair) String() string {
 	return fmt.Sprintf("PAIR:\n%s\n%s\n", p.a, p.b)
+}
+
+func (p Pair) RightOrder() bool {
+	c := p.a.Cmp(p.b)
+	if c == 0 {
+		panic("same!")
+	}
+	return c == -1
 }
 
 func lineGroupToPair(lg []string) Pair {
@@ -49,6 +64,47 @@ func lineGroupToPair(lg []string) Pair {
 type Node struct {
 	v        int
 	children []*Node
+}
+
+func (n *Node) Cmp(m *Node) int {
+	if n.children == nil && m.children == nil {
+		if n.v < m.v {
+			return -1
+		}
+		if n.v > m.v {
+			return +1
+		}
+		return 0
+	}
+	if n.children == nil {
+		nn := &Node{v: 0, children: []*Node{{v: n.v}}}
+		return nn.Cmp(m)
+	}
+	if m.children == nil {
+		mm := &Node{v: 0, children: []*Node{{v: m.v}}}
+		return n.Cmp(mm)
+	}
+	// Both lists
+	nc := n.children
+	mc := m.children
+	for {
+		if len(nc) == 0 && len(mc) == 0 {
+			return 0
+		}
+		if len(nc) == 0 {
+			return -1
+		}
+		if len(mc) == 0 {
+			return +1
+		}
+		c := nc[0].Cmp(mc[0])
+		if c != 0 {
+			return c
+		}
+		nc = nc[1:]
+		mc = mc[1:]
+	}
+	panic("not reached")
 }
 
 func (n *Node) String() string {
@@ -72,7 +128,7 @@ func parseList(l string) (string, *Node) {
 	}
 	l = l[1:]
 
-	current := &Node{}
+	current := &Node{children: make([]*Node, 0)}
 
 NEXTCHAR:
 	for {
