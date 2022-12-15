@@ -32,7 +32,40 @@ func (d *Day14) Run(out io.Writer, lines []string) error {
 		}
 	}
 	fmt.Printf("%s\n", gridString(g))
+
+	sandSource := pts.P2{500, 0}
+	units := 0
+	for {
+		if !addSand(g, sandSource) {
+			break
+		}
+		units++
+	}
+	fmt.Printf("%s\n", gridString(g))
+	fmt.Printf("Part 1: %d\n", units)
+
 	return nil
+}
+
+func addSand(g *grid.Sparse[byte], sand pts.P2) bool {
+	down := pts.P2{0, +1}
+	downLeft := pts.P2{-1, +1}
+	downRight := pts.P2{+1, +1}
+	tries := []pts.P2{down, downLeft, downRight}
+
+STEP:
+	for sand.Y <= g.MaxY {
+		for _, try := range tries {
+			possible := sand.Add(try)
+			if g.GetPt(possible) == '.' {
+				sand = possible
+				continue STEP
+			}
+		}
+		g.SetPt(sand, 'o')
+		return true
+	}
+	return false
 }
 
 func gridString(g *grid.Sparse[byte]) string {
