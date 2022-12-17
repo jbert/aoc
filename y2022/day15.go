@@ -8,6 +8,7 @@ import (
 	"github.com/jbert/aoc/fun"
 	"github.com/jbert/aoc/num"
 	"github.com/jbert/aoc/pts"
+	"github.com/jbert/aoc/set"
 )
 
 type Day15 struct{ Year }
@@ -50,7 +51,41 @@ func (d *Day15) Run(out io.Writer, lines []string) error {
 	//	fmt.Printf("%v\n", inRange(pts.P2{0, 10}))
 	fmt.Printf("Part 1: %d\n", len(fun.Filter(fun.Id[bool], fun.Map(fun.AnyBool, fun.Map(inRange, ps)))))
 
+	fmt.Printf("\n\n")
+
+	var sbps []SBPair
+	for i, sba := range sbs {
+		for _, sbb := range sbs[i+1:] {
+			sd := sba.sensor.Sub(sbb.sensor).ManhattanLength()
+			dd := sba.dist() + sbb.dist()
+			if sd-dd == 2 {
+				fmt.Printf("%s, %s:\t%d %d : %d\n", sba.sensor, sbb.sensor, sd, dd, sd-dd)
+				sbp := SBPair{sba, sbb}
+				sbps = append(sbps, sbp)
+			}
+		}
+	}
+	fmt.Printf("SBPairs: %v\n", sbps)
+
+	if len(sbps) != 2 {
+		panic("wtf")
+	}
+	possibles := sbps[0].BoundaryOverlap().Intersect(sbps[1].BoundaryOverlap())
+	fmt.Printf("possibles: %v\n", possibles)
+	p := possibles.ToList()[0]
+	fmt.Printf("Part 2: %d\n", 4000000*p.X+p.Y)
+
 	return nil
+}
+
+type SBPair struct {
+	a, b SB
+}
+
+func (sbp SBPair) BoundaryOverlap() set.Set[pts.P2] {
+	sa := set.SetFromList(sbp.a.boundary())
+	sb := set.SetFromList(sbp.b.boundary())
+	return sa.Intersect(sb)
 }
 
 type SB struct {
@@ -64,6 +99,18 @@ func (sb SB) dist() int {
 
 func (sb SB) inRange(p pts.P2) bool {
 	return sb.sensor.Sub(p).ManhattanLength() <= sb.dist()
+}
+
+func (sb SB) boundary() []pts.P2 {
+	var boundary []pts.P2
+	d := sb.dist() + 1
+	for i := 0; i <= d; i++ {
+		boundary = append(boundary, sb.sensor.Add(pts.P2{i, d - i}))
+		boundary = append(boundary, sb.sensor.Add(pts.P2{d - i, -i}))
+		boundary = append(boundary, sb.sensor.Add(pts.P2{-i, -d + i}))
+		boundary = append(boundary, sb.sensor.Add(pts.P2{-d + i, +i}))
+	}
+	return boundary
 }
 
 func minX(sb SB) int {
