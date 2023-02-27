@@ -65,7 +65,7 @@ func (s Set[T]) Union(a Set[T]) Set[T] {
 	return u
 }
 
-func SetFromList[T comparable](as []T) Set[T] {
+func NewFromList[T comparable](as []T) Set[T] {
 	s := New[T]()
 	s.InsertList(as)
 	return s
