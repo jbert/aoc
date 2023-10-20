@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/jbert/aoc/fun"
+	"github.com/jbert/fun"
 )
 
 type Day18 struct{ Year }

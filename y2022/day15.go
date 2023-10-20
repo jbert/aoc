@@ -5,10 +5,10 @@ import (
 	"io"
 	"strings"
 
-	"github.com/jbert/aoc/fun"
 	"github.com/jbert/aoc/num"
 	"github.com/jbert/aoc/pts"
-	"github.com/jbert/aoc/set"
+	"github.com/jbert/fun"
+	"github.com/jbert/set"
 )
 
 type Day15 struct{ Year }

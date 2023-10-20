@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/jbert/aoc/pts"
-	"github.com/jbert/aoc/set"
+	"github.com/jbert/set"
 	"github.com/stretchr/testify/assert"
 )
 

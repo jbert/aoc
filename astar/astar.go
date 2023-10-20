@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/jbert/aoc/fun"
-	"github.com/jbert/aoc/set"
+	"github.com/jbert/fun"
+	"github.com/jbert/set"
 )
 
 type Graph[V comparable] interface {

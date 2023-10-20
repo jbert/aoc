@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jbert/aoc/fun"
 	"github.com/jbert/aoc/pts"
-	"github.com/jbert/aoc/set"
+	"github.com/jbert/fun"
+	"github.com/jbert/set"
 )
 
 type Day19 struct{ Year }

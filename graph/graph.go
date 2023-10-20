@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jbert/aoc/fun"
-	"github.com/jbert/aoc/set"
+	"github.com/jbert/fun"
+	"github.com/jbert/set"
 )
 
 type Edge[V comparable] struct {

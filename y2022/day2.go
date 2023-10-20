@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/jbert/aoc/fun"
+	"github.com/jbert/fun"
 )
 
 type Day2 struct{ Year }

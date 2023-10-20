@@ -8,7 +8,7 @@ import (
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/astar"
-	"github.com/jbert/aoc/fun"
+	"github.com/jbert/fun"
 	"github.com/jbert/aoc/grid"
 	"github.com/jbert/aoc/pts"
 )

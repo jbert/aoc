@@ -8,7 +8,7 @@ import (
 	"unicode"
 
 	"github.com/jbert/aoc"
-	"github.com/jbert/aoc/fun"
+	"github.com/jbert/fun"
 	"github.com/jbert/aoc/num"
 )
 
