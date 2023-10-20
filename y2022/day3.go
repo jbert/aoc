@@ -21,8 +21,8 @@ func repeatedType(s string) byte {
 		panic("odd length string")
 	}
 	b2 := len(buf) / 2
-	a := set.SetFromList(buf[:b2])
-	b := set.SetFromList(buf[b2:])
+	a := set.NewFromList(buf[:b2])
+	b := set.NewFromList(buf[b2:])
 	return a.Intersect(b).ToList()[0]
 }
 
@@ -37,9 +37,9 @@ func typeToPrio(t byte) int {
 }
 
 func elfGroupToBadge(lines []string) byte {
-	a := set.SetFromList([]byte(lines[0]))
-	b := set.SetFromList([]byte(lines[1]))
-	c := set.SetFromList([]byte(lines[2]))
+	a := set.NewFromList([]byte(lines[0]))
+	b := set.NewFromList([]byte(lines[1]))
+	c := set.NewFromList([]byte(lines[2]))
 
 	return a.Intersect(b).Intersect(c).ToList()[0]
 }

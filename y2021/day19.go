@@ -202,7 +202,7 @@ LINES:
 		beacons = append(beacons, beacon)
 	}
 	i++
-	s.beacons = BSet{set.SetFromList(beacons)}
+	s.beacons = BSet{set.NewFromList(beacons)}
 	return s, lines[i+1:]
 }
 

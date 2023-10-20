@@ -83,8 +83,8 @@ type SBPair struct {
 }
 
 func (sbp SBPair) BoundaryOverlap() set.Set[pts.P2] {
-	sa := set.SetFromList(sbp.a.boundary())
-	sb := set.SetFromList(sbp.b.boundary())
+	sa := set.NewFromList(sbp.a.boundary())
+	sb := set.NewFromList(sbp.b.boundary())
 	return sa.Intersect(sb)
 }
 
