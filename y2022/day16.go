@@ -3,6 +3,7 @@ package y2022
 import (
 	"fmt"
 	"io"
+	"os"
 	"slices"
 	"strings"
 
@@ -215,6 +216,15 @@ func (d *Day16) Run(out io.Writer, lines []string) error {
 
 	g := graph.NewFromEdges(edges, true)
 	fmt.Printf("G: %v\n", g)
+	fmt.Printf("V: %v\n", valves)
+
+	f, err := os.Create("tt.dot")
+	if err != nil {
+		return fmt.Errorf("Can't open png file: %w", err)
+	}
+	defer f.Close()
+	g.ToDot(f, "tt")
+
 	fmt.Printf("V: %v\n", valves)
 
 	vertices := g.Vertices()

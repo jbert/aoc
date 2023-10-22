@@ -2,6 +2,7 @@ package graph
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/jbert/fun"
@@ -23,6 +24,27 @@ func (e Edge[V]) Reverse() Edge[V] {
 }
 
 type Graph[V comparable] map[V]set.Set[Edge[V]]
+
+func (g Graph[V]) ToDot(w io.Writer, name string) {
+	// TODO: support directed/undirected properly (in code and Dot)
+	fmt.Fprintf(w, "graph %s {\n", name)
+	edges := g.Edges()
+	for _, e := range edges {
+		fmt.Fprintf(w, "\t%v -- %v\n", e.From, e.To)
+	}
+	fmt.Fprintf(w, "}\n")
+	return
+}
+
+func (g Graph[V]) Edges() []Edge[V] {
+	var edges []Edge[V]
+	for _, s := range g {
+		s.ForEach(func(e Edge[V]) {
+			edges = append(edges, e)
+		})
+	}
+	return edges
+}
 
 func (g Graph[V]) Vertices() []V {
 	var vs []V
