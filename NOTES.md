@@ -24,6 +24,8 @@ Profile suggests action.toString is the bottlneck
 Yes! 5-6x speedup:
 3.37user 0.32system 0:03.24elapsed 114%CPU (0avgtext+0avgdata 247980maxresident)k
 
+....and nowhere near good enough. Algorithmic improvement needed.
+
 
 ## Day 13
 
