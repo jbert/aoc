@@ -27,6 +27,18 @@ Yes! 5-6x speedup:
 ....and nowhere near good enough. Algorithmic improvement needed.
 
 
+Try structural recursion on graph?
+    - how to build recursion?
+    - if have optimal soln on sub-graph, add in a single edge?
+    - add in a new vertex (and set of connecting edges)
+        - yes?
+        - how do we manage minutes?
+            - exhaustively?
+                - choose to turn or not turn new vert (and only -- the minute
+                  count for sub graph)
+                - or choose to turn new graph, then move (and -= 2 the minute
+                  count for sub graph)
+
 ## Day 13
 
 Tried a couple of things to make the parsing easier, but ultimately "char at a
