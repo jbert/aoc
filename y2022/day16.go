@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"slices"
 	"sort"
 	"strings"
 
@@ -113,6 +114,26 @@ func (s state) possibleActions(g *graph.Graph[string], valves map[string]Valve) 
 	if !s.on[s.location] && valves[s.location].flowRate > 0 {
 		actions = append(actions, Action{typ: TURN, label: s.location, eleTyp: NONE, eleLabel: ""})
 	}
+
+	if s.elephant != "" {
+		baseActions := slices.Clone(actions)
+		actions = nil
+		eleNeighbours := g.Neighbours(s.elephant)
+		for _, baseAction := range baseActions {
+			for _, loc := range eleNeighbours {
+				action := baseAction // shallow copy ok
+				action.eleTyp = ELEMOVE
+				action.eleLabel = loc
+				actions = append(actions, action)
+			}
+			if !s.on[s.elephant] && valves[s.elephant].flowRate > 0 {
+				action := baseAction // shallow copy ok
+				action.eleTyp = ELETURN
+				action.eleLabel = s.elephant
+				actions = append(actions, action)
+			}
+		}
+	}
 	return actions
 }
 
@@ -184,13 +205,15 @@ func (d *Day16) run(useElephant bool, g *graph.Graph[string], valves map[string]
 	for label := range valves {
 		start.on[label] = false
 	}
-	//	if useElephant {
-	//		start.elephant = "AA"
-	//	}
+	maxMinutes := 30
+	if useElephant {
+		start.elephant = "AA"
+		maxMinutes = 26
+	}
 
 	states := []state{start}
 
-	for minute := 1; minute <= 30; minute++ {
+	for minute := 1; minute <= maxMinutes; minute++ {
 		fmt.Printf("== Minute %d ==\n", minute)
 		nextStates := make(map[string]state)
 		for _, s := range states {
