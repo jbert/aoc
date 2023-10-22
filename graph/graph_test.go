@@ -22,15 +22,28 @@ func TestVertices(t *testing.T) {
 	g := NewFromEdges(edges, true)
 	vs := g.Vertices()
 	sort.Strings(vs)
-	a.Equal(vs, []string{"A", "B", "C", "D", "E"}, "Correct vertices")
+	a.Equal([]string{"A", "B", "C", "D", "E"}, vs, "Correct vertices")
 
 	es := g.Edges()
 	ess := fun.Map(func(e Edge[string]) string { return fmt.Sprintf("%s-%s", e.From, e.To) }, es)
 	sort.Strings(ess)
-	fmt.Printf("ess %v\n", ess)
 	expected := fun.Flatten(fun.Map(func(s string) []string {
 		return []string{s, string(fun.Reverse([]byte(s)))}
 	}, []string{"A-B", "B-C", "B-D", "C-E", "D-E"}))
 	sort.Strings(expected)
-	a.Equal(ess, expected)
+	a.Equal(expected, ess)
+
+	g2, _ := g.Remove("B")
+	vs = g2.Vertices()
+	sort.Strings(vs)
+	a.Equal([]string{"A", "C", "D", "E"}, vs, "Correct vertices")
+
+	es = g2.Edges()
+	ess = fun.Map(func(e Edge[string]) string { return fmt.Sprintf("%s-%s", e.From, e.To) }, es)
+	sort.Strings(ess)
+	expected = fun.Flatten(fun.Map(func(s string) []string {
+		return []string{s, string(fun.Reverse([]byte(s)))}
+	}, []string{"C-E", "D-E"}))
+	sort.Strings(expected)
+	a.Equal(expected, ess)
 }

@@ -73,6 +73,14 @@ func NewFromEdges[V comparable](edges []Edge[V], undirected bool) *Graph[V] {
 	return &g
 }
 
+func (g Graph[V]) addVertex(v V) {
+	s, ok := g[v]
+	if !ok {
+		s = set.New[Edge[V]]()
+	}
+	g[v] = s
+}
+
 func (g Graph[V]) addEdge(e Edge[V]) {
 	s, ok := g[e.From]
 	if !ok {
@@ -109,4 +117,22 @@ func (g Graph[V]) Weight(from, to V) float64 {
 		panic(fmt.Sprintf("Request for weight of non-existent edge to [%v]", to))
 	}
 	return weight
+}
+
+func (g Graph[V]) Remove(v V) (*Graph[V], []Edge[V]) {
+	edges := g.Edges()
+	removedEdges := fun.Filter(func(e Edge[V]) bool {
+		return e.From == v || e.To == v
+	}, edges)
+	keepEdges := fun.Filter(func(e Edge[V]) bool {
+		return !(e.From == v || e.To == v)
+	}, edges)
+
+	g2 := NewFromEdges(keepEdges, false)
+	ws := fun.Filter(func(w V) bool { return v != w }, g.Vertices())
+	for _, w := range ws {
+		g2.addVertex(w)
+	}
+
+	return g2, removedEdges
 }
