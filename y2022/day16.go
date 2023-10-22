@@ -30,25 +30,44 @@ type actionType int
 const (
 	TURN actionType = iota
 	MOVE
+	NONE
+	ELETURN
+	ELEMOVE
 )
 
 type Action struct {
-	typ   actionType
-	label string
+	typ      actionType
+	label    string
+	eleTyp   actionType
+	eleLabel string
 }
 
 func (a Action) String() string {
+	b := &strings.Builder{}
 	switch a.typ {
 	case TURN:
-		return fmt.Sprintf("You open valve %s", a.label)
+		fmt.Fprintf(b, "You open valve %s", a.label)
 	case MOVE:
-		return fmt.Sprintf("You move to valve %s", a.label)
+		fmt.Fprintf(b, "You move to valve %s", a.label)
+	case NONE:
+		panic("can't have none on non-elephant")
 	default:
 		panic("wtf")
 	}
+	switch a.eleTyp {
+	case ELETURN:
+		fmt.Fprintf(b, "The elephant opens valve %s", a.eleLabel)
+	case ELEMOVE:
+		fmt.Fprintf(b, "The elephant moves to valve %s", a.eleLabel)
+	case NONE:
+		// Nothing
+	default:
+		panic("wtf")
+	}
+	return b.String()
 }
 
-func (s state) next(a Action, valves map[string]Valve) state {
+func (s state) next(a Action) state {
 	//	fmt.Printf("%s: OVP: %d (%s)\n", s.toString(), s.openValvePressure(valves), a)
 	newState := s
 	newState.on = maps.Clone(s.on)
@@ -57,29 +76,42 @@ func (s state) next(a Action, valves map[string]Valve) state {
 		newState.on[a.label] = true
 	case MOVE:
 		newState.location = a.label
+	case NONE:
+		panic("can't have none on non-elephant")
 	default:
 		panic("wtf")
 	}
-	newState.bestPressure += s.openValvePressure(valves)
-	//	fmt.Printf("%s: OVP: %d\n", newState.toString(), newState.openValvePressure(valves))
+	switch a.eleTyp {
+	case ELETURN:
+		newState.on[a.eleLabel] = true
+	case ELEMOVE:
+		newState.elephant = a.eleLabel
+	case NONE:
+		// Nothing
+	default:
+		panic("wtf")
+	}
 	return newState
 }
 
 type state struct {
 	location     string
+	elephant     string
 	on           map[string]bool
 	bestPressure int
 }
 
 func (s state) toString() string {
-	return s.location + "|" + strings.Join(s.openValveLabels(), "")
+	return s.location + "|" + s.elephant + "|" + strings.Join(s.openValveLabels(), "")
 }
 
 func (s state) possibleActions(g *graph.Graph[string], valves map[string]Valve) []Action {
 	neighbours := g.Neighbours(s.location)
-	actions := fun.Map(func(label string) Action { return Action{MOVE, label} }, neighbours)
+	actions := fun.Map(func(label string) Action {
+		return Action{typ: MOVE, label: label, eleTyp: NONE, eleLabel: ""}
+	}, neighbours)
 	if !s.on[s.location] && valves[s.location].flowRate > 0 {
-		actions = append(actions, Action{TURN, s.location})
+		actions = append(actions, Action{typ: TURN, label: s.location, eleTyp: NONE, eleLabel: ""})
 	}
 	return actions
 }
@@ -127,9 +159,22 @@ func (d *Day16) Run(out io.Writer, lines []string) error {
 		valves[v.label] = v
 		edges = append(edges, lineEdges...)
 	}
+
 	g := graph.NewFromEdges(edges, true)
 	fmt.Printf("G: %v\n", g)
 	fmt.Printf("V: %v\n", valves)
+
+	if err := d.run(false, g, valves); err != nil {
+		return fmt.Errorf("Part1: %w", err)
+	}
+	fmt.Printf("---------------------------------------\n")
+	if err := d.run(true, g, valves); err != nil {
+		return fmt.Errorf("Part2: %w", err)
+	}
+	return nil
+}
+
+func (d *Day16) run(useElephant bool, g *graph.Graph[string], valves map[string]Valve) error {
 
 	start := state{
 		location:     "AA",
@@ -139,6 +184,9 @@ func (d *Day16) Run(out io.Writer, lines []string) error {
 	for label := range valves {
 		start.on[label] = false
 	}
+	//	if useElephant {
+	//		start.elephant = "AA"
+	//	}
 
 	states := []state{start}
 
@@ -153,7 +201,9 @@ func (d *Day16) Run(out io.Writer, lines []string) error {
 				//				fmt.Printf("%s\n", action)
 				//				fmt.Printf("%s\n", s.openValveString(valves))
 				//				fmt.Printf("\n")
-				nextState := s.next(action, valves)
+				nextState := s.next(action)
+				nextState.bestPressure += s.openValvePressure(valves)
+
 				nextKey := nextState.toString()
 				existingState, ok := nextStates[nextKey]
 				if ok {
