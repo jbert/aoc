@@ -24,6 +24,14 @@ func (e Edge[V]) Reverse() Edge[V] {
 
 type Graph[V comparable] map[V]set.Set[Edge[V]]
 
+func (g Graph[V]) Vertices() []V {
+	var vs []V
+	for v := range g {
+		vs = append(vs, v)
+	}
+	return vs
+}
+
 func (g Graph[V]) String() string {
 	b := &strings.Builder{}
 	for v, s := range g {
