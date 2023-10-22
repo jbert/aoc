@@ -1,3 +1,12 @@
+## Day 16
+
+Stopped on this at the time. Did a brute force search, but tried to cull the
+multiplicity over time by noting that once the same set of valves were open,
+the only state which mattered was the amount of pressure release so far.
+
+Had an annoying bug due to shallow copy of the state - maps.Clone() for the
+win.
+
 ## Day 13
 
 Tried a couple of things to make the parsing easier, but ultimately "char at a
