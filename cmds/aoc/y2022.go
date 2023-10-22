@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
+	"runtime/pprof"
 	"strconv"
 
 	"github.com/jbert/aoc"
@@ -11,16 +13,30 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		log.Fatalf("Must have exactly 2 args")
+	args := os.Args
+
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+		args = args[1:]
 	}
-	day, err := strconv.Atoi(os.Args[1])
+
+	if len(args) != 3 {
+		log.Fatalf("Must have at exactly 2 args")
+	}
+	day, err := strconv.Atoi(args[1])
 	if err != nil {
-		log.Fatalf("Couldn't parse [%d] as number: %s", os.Args[1], err)
+		log.Fatalf("Couldn't parse [%d] as number: %s", args[1], err)
 	}
 
 	test := true
-	if os.Args[2] == "false" {
+	if args[2] == "false" {
 		test = false
 	}
 

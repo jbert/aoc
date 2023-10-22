@@ -7,6 +7,20 @@ the only state which mattered was the amount of pressure release so far.
 Had an annoying bug due to shallow copy of the state - maps.Clone() for the
 win.
 
+Part 2 needs optimisation (or a better algorithm).
+
+Baseline (part 1 only):
+19.85user 1.42system 0:13.42elapsed 158%CPU (0avgtext+0avgdata 2352868maxresident)k
+
+Profile (and thinking) suggests we're doing lots of map lookup and copying.
+Lets use numbers instead of string labels (and correspondingly, arrays instead
+of maps)
+
+After using integers for most:
+17.42user 0.56system 0:17.23elapsed 104%CPU (0avgtext+0avgdata 381424maxresident)k
+
+
+
 ## Day 13
 
 Tried a couple of things to make the parsing easier, but ultimately "char at a
