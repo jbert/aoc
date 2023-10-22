@@ -19,6 +19,10 @@ of maps)
 After using integers for most:
 17.42user 0.56system 0:17.23elapsed 104%CPU (0avgtext+0avgdata 381424maxresident)k
 
+Profile suggests action.toString is the bottlneck
+
+Yes! 5-6x speedup:
+3.37user 0.32system 0:03.24elapsed 114%CPU (0avgtext+0avgdata 247980maxresident)k
 
 
 ## Day 13

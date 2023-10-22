@@ -108,7 +108,14 @@ func (s state) doingElephant() bool {
 }
 
 func (s state) toString() string {
-	return fmt.Sprintf("%d|%d|%v", s.location, s.elephant, s.open)
+	buf := make([]byte, len(s.open))
+	for i, open := range s.open {
+		buf[i] = '0'
+		if open {
+			buf[i] = '1'
+		}
+	}
+	return fmt.Sprintf("%d|%d|%s", s.location, s.elephant, string(buf))
 }
 
 func (s state) possibleActions() []Action {
