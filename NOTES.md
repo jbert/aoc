@@ -48,6 +48,12 @@ Further 3x speedup:
 
 System is almost fast enough, but OOMs...
 
+Phew. Optimised mem use _juuuuust_ enough. Used ~20GB in the end.
+
+853.81user 31.99system 14:30.66elapsed 101%CPU (0avgtext+0avgdata 20916112maxresident)k
+63368inputs+15928outputs (461major+18540893minor)pagefaults 0swaps
+
+Score another for brute force.
 
 ## Day 13
 

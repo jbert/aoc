@@ -34,17 +34,17 @@ func (bf Bitfield) Clear(n int) {
 
 type B64 uint64
 
-func (b *B64) Set(n int) {
+func (b *B64) Set(n int8) {
 	mask := B64(0x1) << n
 	*b |= mask
 }
 
-func (b B64) Get(n int) bool {
+func (b B64) Get(n int8) bool {
 	mask := B64(0x1) << n
 	return b&mask > 0
 }
 
-func (b *B64) Clear(n int) {
+func (b *B64) Clear(n int8) {
 	mask := ^B64(0x1 << n)
 	*b &= mask
 }
