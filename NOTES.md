@@ -38,6 +38,16 @@ Try structural recursion on graph?
                   count for sub graph)
                 - or choose to turn new graph, then move (and -= 2 the minute
                   count for sub graph)
+                - gah - what about start node?
+
+Tried using bitfield for []bool, using uint64 so struct is comparable and can
+be used as a map key.
+
+Further 3x speedup:
+1.12user 0.27system 0:01.11elapsed 124%CPU (0avgtext+0avgdata 134472maxresident)k
+
+System is almost fast enough, but OOMs...
+
 
 ## Day 13
 

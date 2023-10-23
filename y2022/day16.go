@@ -6,7 +6,9 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"time"
 
+	"github.com/jbert/aoc/bitfield"
 	"github.com/jbert/aoc/graph"
 	"github.com/jbert/aoc/num"
 	"github.com/jbert/fun"
@@ -34,15 +36,13 @@ const (
 	ELEMOVE
 )
 
-type vID int
-
-const INVALID_VID = vID(-1)
+const INVALID_VID = -1
 
 type Action struct {
 	typ        actionType
-	valveID    vID
+	valveID    int
 	eleTyp     actionType
-	eleValveID vID
+	eleValveID int
 }
 
 func (a Action) String() string {
@@ -73,10 +73,10 @@ func (a Action) String() string {
 func (s state) next(a Action) state {
 	//	fmt.Printf("%s: OVP: %d (%s)\n", s.toString(), s.openValvePressure(valves), a)
 	newState := s
-	newState.open = slices.Clone(s.open)
+	//	newState.open = slices.Clone(s.open)
 	switch a.typ {
 	case TURN:
-		newState.open[a.valveID] = true
+		newState.open.Set(a.valveID)
 	case MOVE:
 		newState.location = a.valveID
 	case NONE:
@@ -86,7 +86,7 @@ func (s state) next(a Action) state {
 	}
 	switch a.eleTyp {
 	case ELETURN:
-		newState.open[a.eleValveID] = true
+		newState.open.Set(a.eleValveID)
 	case ELEMOVE:
 		newState.elephant = a.eleValveID
 	case NONE:
@@ -98,9 +98,9 @@ func (s state) next(a Action) state {
 }
 
 type state struct {
-	location     vID
-	elephant     vID
-	open         []bool
+	location     int
+	elephant     int
+	open         bitfield.B64
 	bestPressure int
 }
 
@@ -109,22 +109,15 @@ func (s state) doingElephant() bool {
 }
 
 func (s state) toString() string {
-	buf := make([]byte, len(s.open))
-	for i, open := range s.open {
-		buf[i] = '0'
-		if open {
-			buf[i] = '1'
-		}
-	}
-	return fmt.Sprintf("%d|%d|%s", s.location, s.elephant, string(buf))
+	return fmt.Sprintf("%d|%d|%s", s.location, s.elephant, string(s.open))
 }
 
 func (s state) possibleActions() []Action {
 	neighbours := valveNeighbours[s.location]
-	actions := fun.Map(func(loc vID) Action {
+	actions := fun.Map(func(loc int) Action {
 		return Action{typ: MOVE, valveID: loc, eleTyp: NONE, eleValveID: INVALID_VID}
 	}, neighbours)
-	if !s.open[s.location] && valves[s.location].flowRate > 0 {
+	if !s.open.Get(s.location) && valves[s.location].flowRate > 0 {
 		actions = append(actions, Action{typ: TURN, valveID: s.location, eleTyp: NONE, eleValveID: INVALID_VID})
 	}
 
@@ -139,7 +132,7 @@ func (s state) possibleActions() []Action {
 				action.eleValveID = loc
 				actions = append(actions, action)
 			}
-			if !s.open[s.elephant] && valves[s.elephant].flowRate > 0 {
+			if !s.open.Get(s.elephant) && valves[s.elephant].flowRate > 0 && !(baseAction.typ == TURN && baseAction.valveID == s.elephant) {
 				action := baseAction // shallow copy ok
 				action.eleTyp = ELETURN
 				action.eleValveID = s.elephant
@@ -152,8 +145,9 @@ func (s state) possibleActions() []Action {
 
 func (s state) openValvePressure() int {
 	pressure := 0
-	for valveID, open := range s.open {
-		if open {
+	size := len(valves)
+	for valveID := 0; valveID < size; valveID++ {
+		if s.open.Get(valveID) {
 			pressure += valves[valveID].flowRate
 		}
 	}
@@ -187,28 +181,28 @@ func (s state) openValveString(valves map[string]Valve) string {
 */
 
 var valves []Valve
-var labelTovID map[string]vID
-var vIDToLabel map[vID]string
-var valveNeighbours [][]vID
+var labelTovID map[string]int
+var vIDToLabel map[int]string
+var valveNeighbours [][]int
 
-func valveName(id vID) string {
+func valveName(id int) string {
 	return vIDToLabel[id]
 }
-func labelID(label string) vID {
+func labelID(label string) int {
 	return labelTovID[label]
 }
 
 func (d *Day16) Run(out io.Writer, lines []string) error {
 	edges := []graph.Edge[string]{}
-	labelTovID = make(map[string]vID)
-	vIDToLabel = make(map[vID]string)
+	labelTovID = make(map[string]int)
+	vIDToLabel = make(map[int]string)
 
 	valveID := 0
 	for _, l := range lines {
 		v, lineEdges := parseLine(l)
 		valves = append(valves, v)
-		labelTovID[v.label] = vID(valveID)
-		vIDToLabel[vID(valveID)] = v.label
+		labelTovID[v.label] = valveID
+		vIDToLabel[valveID] = v.label
 		valveID++
 
 		edges = append(edges, lineEdges...)
@@ -228,7 +222,7 @@ func (d *Day16) Run(out io.Writer, lines []string) error {
 	fmt.Printf("V: %v\n", valves)
 
 	vertices := g.Vertices()
-	valveNeighbours = make([][]vID, len(vertices))
+	valveNeighbours = make([][]int, len(vertices))
 	for _, valveLabel := range vertices {
 		vID := labelID(valveLabel)
 		valveNeighbours[vID] = fun.Map(labelID, g.Neighbours(valveLabel))
@@ -238,17 +232,17 @@ func (d *Day16) Run(out io.Writer, lines []string) error {
 		return fmt.Errorf("Part1: %w", err)
 	}
 	fmt.Printf("---------------------------------------\n")
-	//	if err := d.run(true); err != nil {
-	//		return fmt.Errorf("Part2: %w", err)
-	//	}
+	//if err := d.run(true); err != nil {
+	//	return fmt.Errorf("Part2: %w", err)
+	//}
 	return nil
 }
 
 func (d *Day16) run(useElephant bool) error {
 
 	start := state{
-		location:     labelID("AA"),
-		open:         make([]bool, len(valves)),
+		location: labelID("AA"),
+		//		open:         bitfield.New(len(valves)),
 		elephant:     INVALID_VID,
 		bestPressure: 0,
 	}
@@ -264,8 +258,9 @@ func (d *Day16) run(useElephant bool) error {
 	states := []state{start}
 
 	for minute := 1; minute <= maxMinutes; minute++ {
+		start := time.Now()
 		fmt.Printf("== Minute %d ==\n", minute)
-		nextStates := make(map[string]state)
+		currentBests := make(map[state]int)
 		for _, s := range states {
 			//			fmt.Printf("== State %d ==\n", i)
 			possActions := s.possibleActions()
@@ -277,19 +272,20 @@ func (d *Day16) run(useElephant bool) error {
 				nextState := s.next(action)
 				nextState.bestPressure += s.openValvePressure()
 
-				nextKey := nextState.toString()
-				existingState, ok := nextStates[nextKey]
-				if ok {
-					nextState.bestPressure = max(nextState.bestPressure, existingState.bestPressure)
-				}
-				nextStates[nextState.toString()] = nextState // Collapse identical states, keeping best pressure
+				//				nextKey := nextState.toString()
+				nextKey := nextState
+				nextKey.bestPressure = 0
+
+				existingBest := currentBests[nextKey]
+				currentBests[nextKey] = max(existingBest, nextState.bestPressure)
 			}
 		}
 		states = []state{}
-		for _, s := range nextStates {
+		for s, bestP := range currentBests {
+			s.bestPressure = bestP
 			states = append(states, s)
 		}
-		fmt.Printf("%d states\n", len(states))
+		fmt.Printf("%d states - %s\n", len(states), time.Since(start))
 		/*
 			maxPressure := fun.Max(fun.Map(func(s state) int {
 				fmt.Printf("%s: BP: %d\n", s.toString(), s.bestPressure)
