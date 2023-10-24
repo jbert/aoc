@@ -1,3 +1,14 @@
+## Day 17
+
+Lots of off-by-one errors. Having the visualisation is very useful.
+
+Just realised I need to check left and right mobility as well as down.
+
+Is there a good abstraction here?
+    - yep, check the overlap bitmap against the equivalent bitmap
+
+Need to check all rows/cols of the piece, going L and R and down.
+
 ## Day 16
 
 Stopped on this at the time. Did a brute force search, but tried to cull the

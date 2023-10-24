@@ -109,7 +109,8 @@ func (s state) doingElephant() bool {
 }
 
 func (s state) toString() string {
-	return fmt.Sprintf("%d|%d|%s", s.location, s.elephant, string(s.open))
+	//return fmt.Sprintf("%d|%d|%s", s.location, s.elephant, string(s.open))
+	return fmt.Sprintf("%d|%d|%d", s.location, s.elephant, int64(s.open))
 }
 
 func (s state) possibleActions() []Action {

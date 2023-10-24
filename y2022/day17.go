@@ -41,34 +41,53 @@ const chamberWidth = 7
 // All coords are (0,0) at bottom left
 
 func (d *Day17) Run(out io.Writer, lines []string) error {
+	lgs := aoc.LineGroups(strings.Split(pieceStr, "\n"))
 	pieces := fun.Map(newPiece, aoc.LineGroups(strings.Split(pieceStr, "\n")))
 	//	for _, p := range pieces {
 	//		fmt.Printf("%s\n", p)
 	//	}
 
 	jets := lines[0]
-	//	fmt.Printf("JETS: %s\n", jets)
+	fmt.Printf("JETS: %s\n", jets)
 	iJet := 0
+	downDir := pts.P2{0, -1}
 
 	var c chamber
 
-	for i := 1; i < 10; i++ {
-		p := pieces[(i-1)%len(pieces)].Copy()
+	numStopped := 0
+	iPiece := 0
+	for numStopped <= 2022 {
+		p := newPiece(lgs[iPiece])
+		iPiece++
+		iPiece = iPiece % len(pieces)
+
 		fmt.Printf("%s\n", p)
 		p.pos = c.startPos(p)
 		p.moving = true
 		c.addPiece(p)
+		fmt.Printf("%s\n", c.String())
 		for p.moving {
-			dir := jets[iJet]
+			jetChar := jets[iJet]
 			iJet++
-			iJet = iJet % (len(jets) - 1)
+			iJet = iJet % len(jets)
 
-			p.applyJet(dir, chamberWidth)
-			p.applyGravity(c)
-
-			fmt.Printf("%s\n", c.String())
+			jetDir := pts.P2{+1, 0}
+			if jetChar == '<' {
+				jetDir = pts.P2{-1, 0}
+			}
+			fmt.Printf("%s", c.String())
+			worked := p.tryMove(jetDir, c)
+			fmt.Printf("Push [%s] worked [%v]\n\n", jetDir, worked)
+			fmt.Printf("%s", c.String())
+			worked = p.tryMove(downDir, c)
+			fmt.Printf("Drop worked [%v]\n\n", worked)
+			if !worked {
+				p.moving = false
+				numStopped++
+			}
 		}
 	}
+	fmt.Printf("Stopped height: %d\n", c.highestTop(false))
 
 	return nil
 }
@@ -81,12 +100,12 @@ func (c chamber) startPos(p *piece) pts.P2 {
 		wall and its bottom edge is three units above the highest rock in the room
 		(or the floor, if there isn't one)
 	*/
-	start := pts.P2{X: 2, Y: c.highestStopped() + 3}
+	start := pts.P2{X: 2, Y: c.highestTop(false) + 3 + 1}
 	return start
 }
 
 func (c *chamber) addPiece(p *piece) {
-	fmt.Printf("Adding:\n%s\n", p)
+	//	fmt.Printf("Adding:\n%s\n", p)
 	*c = append(*c, p)
 	c.sort()
 }
@@ -114,20 +133,11 @@ func (c *chamber) sort() {
 
 func (c chamber) String() string {
 	b := &strings.Builder{}
-	for j := c.highestStopped() + 6; j >= 0; j-- {
+	for j := c.highestTop(true); j >= 0; j-- {
 		fmt.Fprintf(b, "|")
 		for i := 0; i < chamberWidth; i++ {
-			printed := false
-			for _, p := range c {
-				c := p.charAt(i, j)
-				if c != ' ' {
-					fmt.Fprintf(b, "%c", p.charAt(i, j))
-					printed = true
-				}
-			}
-			if !printed {
-				fmt.Fprintf(b, "%c", '.')
-			}
+			c := c.charAt(i, j)
+			fmt.Fprintf(b, "%c", c)
 		}
 		fmt.Fprintf(b, "|\n")
 	}
@@ -136,21 +146,47 @@ func (c chamber) String() string {
 		fmt.Fprintf(b, "-")
 	}
 	fmt.Fprintf(b, "+\n")
-	fmt.Fprintf(b, "Highest stopped: %d\n", c.highestStopped())
+	fmt.Fprintf(b, "Highest stopped: %d\n", c.highestTop(false))
 	return b.String()
 }
 
-func (c chamber) highestStopped() int {
+func (c chamber) highestTop(includeMoving bool) int {
 	if len(c) == 0 {
-		return 0
+		return -1
 	}
 	h := 0
 	for _, p := range c {
-		if !p.moving {
+		if includeMoving || !p.moving {
 			h = max(h, p.top())
 		}
 	}
 	return h
+}
+
+func (c chamber) rectAt(x, y, w, h int) [][]bool {
+	rect := make([][]bool, h)
+	for j := 0; j < h; j++ {
+		rect[h-1-j] = make([]bool, w)
+		for i := 0; i < w; i++ {
+			if i+x > chamberWidth-1 || i+x < 0 || j+y < 0 {
+				rect[h-1-j][i] = true
+				continue
+			}
+			char := c.charAt(i+x, j+y)
+			rect[h-1-j][i] = char == '#'
+		}
+	}
+	return rect
+}
+
+func (c chamber) charAt(x, y int) byte {
+	for _, p := range c {
+		c := p.charAt(x, y)
+		if c != ' ' {
+			return c
+		}
+	}
+	return '.'
 }
 
 type piece struct {
@@ -166,10 +202,10 @@ func newPiece(lines []string) *piece {
 		h:    len(lines),
 		w:    len(lines[0]),
 	}
-	for i, l := range lines {
-		p.bits[i] = make([]bool, p.w)
-		for j, r := range l {
-			p.bits[i][j] = r == '#'
+	for j, l := range lines {
+		p.bits[p.h-1-j] = make([]bool, p.w)
+		for i, r := range l {
+			p.bits[p.h-1-j][i] = r == '#'
 		}
 	}
 	return &p
@@ -185,7 +221,7 @@ func (p *piece) charAt(x, y int) byte {
 	if x < 0 || x >= p.w {
 		return ' '
 	}
-	if p.bits[(p.h-1)-y][x] {
+	if p.bits[y][x] {
 		if p.moving {
 			return '@'
 		} else {
@@ -193,12 +229,6 @@ func (p *piece) charAt(x, y int) byte {
 		}
 	}
 	return ' '
-}
-
-func (p *piece) Copy() *piece {
-	// Shallow copy is fine, the 'bits' array is immutable
-	q := *p
-	return &q
 }
 
 func (p *piece) left() int {
@@ -217,33 +247,41 @@ func (p *piece) bottom() int {
 	return p.pos.Y
 }
 
-func (p *piece) applyGravity(c chamber) {
-	fmt.Printf("PB: %d HS %d\n", p.bottom(), c.highestStopped())
-	if p.bottom() <= c.highestStopped() {
-		fmt.Printf("Stopping\n")
-		p.moving = false
-		return
-	}
-	p.pos.Y--
-}
-
-func (p *piece) applyJet(dir byte, chamberWidth int) {
-	switch dir {
-	case '>':
-		if p.right() == chamberWidth-1 {
-			return
-		}
-		p.pos.X++
-		return
-	case '<':
-		if p.left() == 0 {
-			return
-		}
-		p.pos.X--
-		return
-	default:
+func rectIntersect(a, b [][]bool) bool {
+	if len(a) != len(b) || len(a) == 0 || len(a[0]) != len(b[0]) {
 		panic("wtf")
 	}
+	fmt.Printf("JB RI:\n%v\n%v\n", a, b)
+	for j := range a {
+		for i := range a[j] {
+			if a[j][i] && b[j][i] {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (p *piece) tryMove(dir pts.P2, c chamber) bool {
+	moveTo := p.pos.Add(dir)
+	r := c.rectAt(moveTo.X, moveTo.Y, p.w, p.h)
+	//	fmt.Printf("JB: c.rect:\n%v\n%v\n", r, p.rect())
+	worked := !rectIntersect(r, p.rect())
+	if worked {
+		p.pos = moveTo
+	}
+	return worked
+}
+
+func (p *piece) rect() [][]bool {
+	rect := make([][]bool, p.h)
+	for j := 0; j < p.h; j++ {
+		rect[j] = make([]bool, p.w)
+		for i := 0; i < p.w; i++ {
+			rect[j][i] = p.bits[j][i]
+		}
+	}
+	return rect
 }
 
 func (p *piece) String() string {
@@ -254,9 +292,9 @@ func (p *piece) String() string {
 	if p.moving {
 		r = '@'
 	}
-	for i := range p.bits {
-		for j := range p.bits[0] {
-			if p.bits[i][j] {
+	for j := range p.bits {
+		for i := range p.bits[0] {
+			if p.bits[p.h-1-j][i] {
 				fmt.Fprintf(b, "%c", r)
 			} else {
 				fmt.Fprintf(b, " ")
