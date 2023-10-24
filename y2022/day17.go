@@ -61,11 +61,11 @@ func (d *Day17) Run(out io.Writer, lines []string) error {
 		iPiece++
 		iPiece = iPiece % len(pieces)
 
-		fmt.Printf("%s\n", p)
+		//		fmt.Printf("%s\n", p)
 		p.pos = c.startPos(p)
 		p.moving = true
 		c.addPiece(p)
-		fmt.Printf("%s\n", c.String())
+		//		fmt.Printf("%s\n", c.String())
 		for p.moving {
 			jetChar := jets[iJet]
 			iJet++
@@ -75,19 +75,19 @@ func (d *Day17) Run(out io.Writer, lines []string) error {
 			if jetChar == '<' {
 				jetDir = pts.P2{-1, 0}
 			}
-			fmt.Printf("%s", c.String())
+			//			fmt.Printf("%s", c.String())
 			worked := p.tryMove(jetDir, c)
-			fmt.Printf("Push [%s] worked [%v]\n\n", jetDir, worked)
-			fmt.Printf("%s", c.String())
+			//			fmt.Printf("Push [%s] worked [%v]\n\n", jetDir, worked)
+			//			fmt.Printf("%s", c.String())
 			worked = p.tryMove(downDir, c)
-			fmt.Printf("Drop worked [%v]\n\n", worked)
+			//			fmt.Printf("Drop worked [%v]\n\n", worked)
 			if !worked {
 				p.moving = false
 				numStopped++
 			}
 		}
 	}
-	fmt.Printf("Stopped height: %d\n", c.highestTop(false))
+	fmt.Printf("Stopped height: %d\n", c.highestTop(false)-1)
 
 	return nil
 }
@@ -166,14 +166,14 @@ func (c chamber) highestTop(includeMoving bool) int {
 func (c chamber) rectAt(x, y, w, h int) [][]bool {
 	rect := make([][]bool, h)
 	for j := 0; j < h; j++ {
-		rect[h-1-j] = make([]bool, w)
+		rect[j] = make([]bool, w)
 		for i := 0; i < w; i++ {
 			if i+x > chamberWidth-1 || i+x < 0 || j+y < 0 {
-				rect[h-1-j][i] = true
+				rect[j][i] = true
 				continue
 			}
 			char := c.charAt(i+x, j+y)
-			rect[h-1-j][i] = char == '#'
+			rect[j][i] = char == '#'
 		}
 	}
 	return rect
@@ -251,7 +251,7 @@ func rectIntersect(a, b [][]bool) bool {
 	if len(a) != len(b) || len(a) == 0 || len(a[0]) != len(b[0]) {
 		panic("wtf")
 	}
-	fmt.Printf("JB RI:\n%v\n%v\n", a, b)
+	//	fmt.Printf("JB RI:\n%v\n%v\n", a, b)
 	for j := range a {
 		for i := range a[j] {
 			if a[j][i] && b[j][i] {

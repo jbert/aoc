@@ -16,7 +16,7 @@ func TestD17Rect(t *testing.T) {
 	r = c.rectAt(-1, 0, 2, 2)
 	a.Equal([][]bool{{true, false}, {true, false}}, r)
 	r = c.rectAt(0, -1, 2, 2)
-	a.Equal([][]bool{{false, false}, {true, true}}, r)
+	a.Equal([][]bool{{true, true}, {false, false}}, r)
 
 	r = c.rectAt(chamberWidth-1, 0, 2, 2)
 	a.Equal([][]bool{{false, true}, {false, true}}, r)
