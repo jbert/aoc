@@ -26,8 +26,8 @@ func (p Pos) Perform(t Turn) (Pos, int) {
 		zeroClicks *= -1
 	}
 	v := ip + it
-	newPos := v % 50
-	if ip*newPos < 0 {
+	newPos := (v + 100) % 100
+	if v >= 100 || v <= 0 {
 		zeroClicks++
 	}
 	return Pos(newPos), zeroClicks
