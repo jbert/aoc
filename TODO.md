@@ -13,4 +13,4 @@
 
 - remove DayN types?
 
-- can we generate (or reflect) the func table?
+- DONE can we generate (or reflect) the func table?

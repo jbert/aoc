@@ -1,0 +1,8 @@
+// Auto-generated from created files
+package y2025
+
+import "github.com/jbert/aoc/year"
+
+var dayFuncs = map[int]year.Day{
+	1: &Day1{},
+}

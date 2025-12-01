@@ -1,11 +1,13 @@
 package y2025
 
+//go:generate ../generate-dayfuncs.sh
+
 import (
 	"github.com/jbert/aoc/year"
 )
 
 var Y = year.New(2025, dayFuncs)
 
-var dayFuncs = map[int]year.Day{
-	1: &Day1{},
-}
+// var dayFuncs = map[int]year.Day{
+// 	1: &Day1{},
+// }
