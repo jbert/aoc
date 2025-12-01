@@ -4,3 +4,9 @@
 - is there a better way to get `WorkDir` on a `Day` then embedding `Year`?
   - likely can just pass `Year` into WorkDir?
   - if not, worth a comment
+
+- Year needs:
+  - a data dir
+  - an int -> function table
+  - Year is string, [int]func
+  - aoc has map[int]Year
