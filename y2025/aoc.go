@@ -1,7 +1,11 @@
 package y2025
 
-type Year struct{}
+import (
+	"github.com/jbert/aoc/year"
+)
 
-func (y *Year) WorkDir() string {
-	return "/home/john/dev/jbert/aoc/data/y2025"
+var Y = year.New(2025, dayFuncs)
+
+var dayFuncs = map[int]year.Day{
+	1: &Day1{},
 }

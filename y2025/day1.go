@@ -6,15 +6,11 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/jbert/aoc/year"
 	"github.com/jbert/fun"
 )
 
-type Day1 struct{ Year }
-
-func NewDay1() *Day1 {
-	d := Day1{}
-	return &d
-}
+type Day1 struct{ year.Year }
 
 type Pos int
 

@@ -8,32 +8,30 @@ import (
 	"strings"
 
 	"github.com/jbert/aoc/grid"
+	"github.com/jbert/aoc/year"
 )
 
 type Day interface {
-	WorkDir() string
 	Run(out io.Writer, lines []string) error
 }
 
-func Run(d Day, day int, test bool, out io.Writer) error {
-	lines := GetLines(d, day, test)
+func Run(y year.Year, dayNum int, test bool, out io.Writer) error {
+	lines := getLines(y.WorkDir(), dayNum, test)
 	if test {
-		fmt.Fprintf(out, "Lines are %v\n", lines)
+		fmt.Fprintf(out, "lines are %v\n", lines)
 	}
 
-	err := d.Run(out, lines)
+	f := y.DayFunc(dayNum)
+	err := f(out, lines)
 	if err != nil {
-		return fmt.Errorf("Failed running day [%d]: $s", err)
+		return fmt.Errorf("failed running day [%d]: $s", err)
 	}
 
 	return nil
 }
 
-type BaseDay struct {
-}
-
-func GetLines(d Day, day int, test bool) []string {
-	fname := dataFileName(d.WorkDir(), day, test)
+func getLines(workDir string, day int, test bool) []string {
+	fname := dataFileName(workDir, day, test)
 	buf, err := os.ReadFile(fname)
 	if err != nil {
 		log.Fatalf("Can't read data file [%s]: %s", fname, err)
@@ -45,7 +43,7 @@ func GetLines(d Day, day int, test bool) []string {
 	return lines
 }
 
-// Get linesa as a char/byte grid
+// Get lines as a char/byte grid
 func ByteGrid(lines []string) grid.Grid[byte] {
 	w := len(lines[0])
 	h := len(lines)
