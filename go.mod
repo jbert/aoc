@@ -1,8 +1,8 @@
 module github.com/jbert/aoc
 
-go 1.21
+go 1.23.1
 
-toolchain go1.21.3
+// toolchain go1.21.3
 
 require (
 	github.com/jbert/fun v0.0.0-20230909115039-6ecdce88937f

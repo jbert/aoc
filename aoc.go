@@ -3,8 +3,8 @@ package aoc
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/jbert/aoc/grid"
@@ -34,7 +34,7 @@ type BaseDay struct {
 
 func GetLines(d Day, day int, test bool) []string {
 	fname := dataFileName(d.WorkDir(), day, test)
-	buf, err := ioutil.ReadFile(fname)
+	buf, err := os.ReadFile(fname)
 	if err != nil {
 		log.Fatalf("Can't read data file [%s]: %s", fname, err)
 	}
