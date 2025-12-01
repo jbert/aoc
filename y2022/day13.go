@@ -8,11 +8,11 @@ import (
 	"unicode"
 
 	"github.com/jbert/aoc"
-	"github.com/jbert/fun"
 	"github.com/jbert/aoc/num"
+	"github.com/jbert/fun"
 )
 
-type Day13 struct{ Year }
+type Day13 struct{}
 
 func NewDay13() *Day13 {
 	d := Day13{}

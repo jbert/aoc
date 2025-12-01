@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/jbert/aoc"
-	"github.com/jbert/fun"
 	"github.com/jbert/aoc/num"
+	"github.com/jbert/fun"
 )
 
-type Day11 struct{ Year }
+type Day11 struct{}
 
 func NewDay11() *Day11 {
 	d := Day11{}

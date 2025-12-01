@@ -8,12 +8,12 @@ import (
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/astar"
-	"github.com/jbert/fun"
 	"github.com/jbert/aoc/grid"
 	"github.com/jbert/aoc/pts"
+	"github.com/jbert/fun"
 )
 
-type Day12 struct{ Year }
+type Day12 struct{}
 
 func NewDay12() *Day12 {
 	d := Day12{}

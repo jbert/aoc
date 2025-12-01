@@ -5,11 +5,11 @@ import (
 	"io"
 	"strings"
 
-	"github.com/jbert/fun"
 	"github.com/jbert/aoc/graph"
+	"github.com/jbert/fun"
 )
 
-type Day12 struct{ Year }
+type Day12 struct{}
 
 type Vertex string
 

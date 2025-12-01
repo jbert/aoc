@@ -11,7 +11,7 @@ import (
 	"github.com/jbert/set"
 )
 
-type Day9 struct{ Year }
+type Day9 struct{}
 
 func NewDay9() *Day9 {
 	d := Day9{}

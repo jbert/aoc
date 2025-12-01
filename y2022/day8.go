@@ -8,7 +8,7 @@ import (
 	"github.com/jbert/aoc/grid"
 )
 
-type Day8 struct{ Year }
+type Day8 struct{}
 
 func NewDay8() *Day8 {
 	d := Day8{}

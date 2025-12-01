@@ -9,7 +9,7 @@ import (
 	"github.com/jbert/aoc/astar"
 )
 
-type Day15 struct{ Year }
+type Day15 struct{}
 
 func NewDay15() *Day15 {
 	d := Day15{}

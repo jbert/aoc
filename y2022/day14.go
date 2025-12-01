@@ -10,7 +10,7 @@ import (
 	"github.com/jbert/aoc/pts"
 )
 
-type Day14 struct{ Year }
+type Day14 struct{}
 
 func NewDay14() *Day14 {
 	d := Day14{}

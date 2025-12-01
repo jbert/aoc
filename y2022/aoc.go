@@ -2,13 +2,6 @@ package y2022
 
 import "github.com/jbert/aoc/year"
 
-// TODO: remove once cmds/main/y2022.go deleted
-type Year struct{}
-
-func (y *Year) WorkDir() string {
-	return "/home/john/dev/jbert/aoc/data/y2022"
-}
-
 var Y = year.New(2022, dayFuncs)
 
 var dayFuncs = map[int]year.Day{

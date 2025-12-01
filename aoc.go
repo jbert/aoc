@@ -13,22 +13,6 @@ import (
 
 type Day interface {
 	Run(out io.Writer, lines []string) error
-	// TODO: remove once cmds/aoc/y2022.go deleted
-	WorkDir() string
-}
-
-func RunOld(d Day, day int, test bool, out io.Writer) error {
-	lines := getLines(d.WorkDir(), day, test)
-	if test {
-		fmt.Fprintf(out, "Lines are %v\n", lines)
-	}
-
-	err := d.Run(out, lines)
-	if err != nil {
-		return fmt.Errorf("Failed running day [%d]: $s", err)
-	}
-
-	return nil
 }
 
 func Run(y year.Year, dayNum int, test bool, out io.Writer) error {

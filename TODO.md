@@ -1,12 +1,16 @@
-- find better year/day structure
-  - retrofit across previous years
+- DONE find better year/day structure
+  - DONE retrofit across previous years
 
-- is there a better way to get `WorkDir` on a `Day` then embedding `Year`?
-  - likely can just pass `Year` into WorkDir?
-  - if not, worth a comment
+- DONE is there a better way to get `WorkDir` on a `Day` then embedding `Year`?
+  - DONE likely can just pass `Year` into WorkDir?
+  - DONE if not, worth a comment
 
-- Year needs:
-  - a data dir
-  - an int -> function table
-  - Year is string, [int]func
-  - aoc has map[int]Year
+- DONE Year needs:
+  - DONE a data dir
+  - DONE an int -> function table
+
+- DONE clean up TODOs
+
+- remove DayN types?
+
+- can we generate (or reflect) the func table?

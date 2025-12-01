@@ -5,11 +5,11 @@ import (
 	"io"
 	"strings"
 
-	"github.com/jbert/fun"
 	"github.com/jbert/aoc/num"
+	"github.com/jbert/fun"
 )
 
-type Day4 struct{ Year }
+type Day4 struct{}
 
 func NewDay4() *Day4 {
 	d := Day4{}
