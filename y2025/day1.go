@@ -21,10 +21,14 @@ type Pos int
 func (p Pos) Perform(t Turn) (Pos, int) {
 	it := int(t)
 	ip := int(p)
+	// Each full turn will go past zero
+	// and we can then discount it
 	zeroClicks := it / 100
 	if zeroClicks < 0 {
 		zeroClicks *= -1
 	}
+	it = it % 100
+
 	v := ip + it
 	newPos := (v + 100) % 100
 	if v >= 100 || v <= 0 {
