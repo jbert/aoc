@@ -6,8 +6,8 @@ import (
 	"sort"
 
 	"github.com/jbert/aoc"
-	"github.com/jbert/fun"
 	"github.com/jbert/aoc/num"
+	"github.com/jbert/fun"
 )
 
 type Day1 struct{ Year }

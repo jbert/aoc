@@ -11,17 +11,18 @@ import (
 	"time"
 
 	"github.com/jbert/aoc"
+	"github.com/jbert/aoc/y2022"
 	"github.com/jbert/aoc/y2025"
 	"github.com/jbert/aoc/year"
 )
 
 func main() {
-	args := os.Args
 
 	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 	var memprofile = flag.String("memprofile", "", "write mem profile to file")
 	var numYear = flag.Int("year", time.Now().Year(), "year to run (default current year)")
 	flag.Parse()
+	args := flag.Args()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
@@ -29,7 +30,6 @@ func main() {
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
-		args = args[1:]
 	}
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
@@ -42,28 +42,28 @@ func main() {
 			log.Fatal("could not write memory profile: ", err)
 		}
 		fmt.Printf("Wrote heap profile")
-		args = args[1:]
 	}
 
-	if len(args) != 3 {
-		log.Fatalf("Must have at exactly 2 args")
+	if len(args) != 2 {
+		log.Fatalf("Must have at exactly 2 args, got [%v]", args)
 	}
-	day, err := strconv.Atoi(args[1])
+	day, err := strconv.Atoi(args[0])
 	if err != nil {
-		log.Fatalf("Couldn't parse [%d] as number: %s", args[1], err)
+		log.Fatalf("Couldn't parse [%s] as number: %s", args[1], err)
 	}
 
 	test := true
-	if args[2] == "false" {
+	if args[1] == "false" {
 		test = false
 	}
 
 	years := map[int]year.Year{
+		2022: y2022.Y,
 		2025: y2025.Y,
 	}
 	year, ok := years[*numYear]
 	if !ok {
-		log.Fatalf("can't find year [%d]", year)
+		log.Fatalf("can't find year [%d]", *numYear)
 	}
 
 	err = aoc.Run(year, day, test, os.Stdout)
