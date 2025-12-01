@@ -29,7 +29,7 @@ func main() {
 		log.Fatalf("Can't get day for [%d]: %s", err)
 	}
 
-	err = aoc.Run(d, day, test, os.Stdout)
+	err = aoc.RunOld(d, day, test, os.Stdout)
 	if err != nil {
 		log.Fatalf("Failed to run: %s", err)
 	}

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/jbert/aoc"
+	"github.com/jbert/aoc/y2021"
 	"github.com/jbert/aoc/y2022"
 	"github.com/jbert/aoc/y2025"
 	"github.com/jbert/aoc/year"
@@ -58,6 +59,7 @@ func main() {
 	}
 
 	years := map[int]year.Year{
+		2021: y2021.Y,
 		2022: y2022.Y,
 		2025: y2025.Y,
 	}
