@@ -24,7 +24,7 @@ func Run(y year.Year, dayNum int, test bool, out io.Writer) error {
 	f := y.DayFunc(dayNum)
 	err := f(out, lines)
 	if err != nil {
-		return fmt.Errorf("failed running day [%d]: $s", err)
+		return fmt.Errorf("failed running day [%d]: %s", dayNum, err)
 	}
 
 	return nil
