@@ -5,4 +5,5 @@ import "github.com/jbert/aoc/year"
 
 var dayFuncs = map[int]year.Day{
 	1: &Day1{},
+	2: &Day2{},
 }
