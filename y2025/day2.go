@@ -54,21 +54,26 @@ func (r Range) InvalidInSimpleRange() ([]int, error) {
 	if !r.isSimple() {
 		return nil, fmt.Errorf("range %s not simple", r)
 	}
-	lo := max(firstHalf(r.lo), secondHalf(r.lo))
-	hi := max(firstHalf(r.hi), secondHalf(r.hi))
-	fmt.Printf("lo %d hi %d\n", lo, hi)
-	if hi < lo {
-		return nil, nil
-	}
+	v := firstHalf(r.lo)
 
-	nums := fun.Iota(lo, hi-lo+1)
 	numToId := func(n int) int {
 		nDig := numDigits(n)
 		factor := pow10(nDig + 1)
 		return n * (factor + 1)
 	}
-	ids := fun.Map(numToId, nums)
-	ids = fun.Filter(func(n int) bool { return r.Contains(n) }, ids)
+
+	var ids []int
+	for {
+		id := numToId(v)
+		if !r.Contains(id) {
+			break
+		}
+		ids = append(ids, id)
+		v += 1
+	}
+
+	// ids := fun.Map(numToId, nums)
+	// ids = fun.Filter(func(n int) bool { return r.Contains(n) }, ids)
 	// return []int{hi - lo + 1}, nil
 	return ids, nil
 }
