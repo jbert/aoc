@@ -54,7 +54,7 @@ func (r Range) InvalidInSimpleRange() ([]int, error) {
 	if !r.isSimple() {
 		return nil, fmt.Errorf("range %s not simple", r)
 	}
-	v := firstHalf(r.lo)
+	lo := firstHalf(r.lo)
 
 	numToId := func(n int) int {
 		nDig := numDigits(n)
@@ -63,12 +63,16 @@ func (r Range) InvalidInSimpleRange() ([]int, error) {
 	}
 
 	var ids []int
+	v := lo
 	for {
 		id := numToId(v)
-		if !r.Contains(id) {
-			break
+		if r.Contains(id) {
+			ids = append(ids, id)
+		} else {
+			if v > lo {
+				break
+			}
 		}
-		ids = append(ids, id)
 		v += 1
 	}
 
