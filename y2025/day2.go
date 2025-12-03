@@ -9,6 +9,7 @@ import (
 
 	"github.com/jbert/aoc/year"
 	"github.com/jbert/fun"
+	"github.com/jbert/set"
 )
 
 type Day2 struct{ year.Year }
@@ -180,12 +181,14 @@ func (r Range) sdrInvalidIDs() []int {
 		panic(fmt.Sprintf("sdrInvalidIDs called on non-SDR: %s", r))
 	}
 	nDig := numDigits(r.lo)
-	var ids []int
+	s := set.New[int]()
 	for iDig := range nDig / 2 {
 		digIDs := r.sdrInvalidIDsForSize(1 + iDig)
-		ids = append(ids, digIDs...)
+		si := set.NewFromList(digIDs)
+		s = s.Union(si)
 	}
-	return ids
+
+	return s.ToList()
 }
 
 func firstNDigits(v int, nDig int) int {
@@ -253,10 +256,13 @@ func (d *Day2) Run(out io.Writer, lines []string) error {
 	sum = 0
 	for _, r := range ranges {
 		sdrs := r.sameDigitRanges()
+		var ids []int
 		for _, sdr := range sdrs {
 			sdrIDs := sdr.sdrInvalidIDs()
-			sum += fun.Sum(sdrIDs)
+			ids = append(ids, sdrIDs...)
 		}
+		fmt.Printf("%s: %v\n", r, ids)
+		sum += fun.Sum(ids)
 	}
 	fmt.Fprintf(out, "Part 2: %d\n", sum)
 
