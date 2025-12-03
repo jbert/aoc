@@ -102,9 +102,9 @@ func downToEvenDigits(n int) int {
 	return makeHi(nDig)
 }
 
-// The power of then with this number of digits
+// The power of ten with this number of digits
 func pow10(nDig int) int {
-	return int(math.Pow10(nDig - 1))
+	return int(0.5 + math.Pow10(nDig-1))
 }
 
 func makeHi(nDig int) int {
