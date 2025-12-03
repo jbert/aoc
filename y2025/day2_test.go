@@ -2,10 +2,66 @@ package y2025
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNumToID(t *testing.T) {
+	a := assert.New(t)
+	testCases := []struct {
+		n        int
+		copies   int
+		expected int
+	}{
+		{123, 1, 123},
+		{123, 2, 123123},
+		{1, 6, 111111},
+		{12, 3, 121212},
+	}
+	for _, tc := range testCases {
+		got := numToID(tc.n, tc.copies)
+		a.Equal(tc.expected, got, fmt.Sprintf("r %d", tc.n))
+	}
+}
+
+func TestFirstNDigits(t *testing.T) {
+	a := assert.New(t)
+	testCases := []struct {
+		n        int
+		nDig     int
+		expected int
+	}{
+		{123456, 1, 1},
+		{123456, 2, 12},
+		{123456, 3, 123},
+		{123456, 4, 1234},
+		{123456, 5, 12345},
+	}
+	for _, tc := range testCases {
+		got := firstNDigits(tc.n, tc.nDig)
+		a.Equal(tc.expected, got, fmt.Sprintf("r %d", tc.n))
+	}
+}
+
+func TestSameDigitRanges(t *testing.T) {
+	a := assert.New(t)
+	testCases := []struct {
+		r        Range
+		expected []Range
+	}{
+		{Range{1, 10}, []Range{{1, 9}, {10, 10}}},
+		{Range{10, 20}, []Range{{10, 20}}},
+		{Range{10, 100}, []Range{{10, 99}, {100, 100}}},
+	}
+	for _, tc := range testCases {
+		got := tc.r.sameDigitRanges()
+		slices.SortFunc(got, cmpRange)
+		slices.SortFunc(tc.expected, cmpRange)
+		a.Equal(tc.expected, got, fmt.Sprintf("r %s", tc.r))
+	}
+}
 
 func TestDownToEven(t *testing.T) {
 	a := assert.New(t)

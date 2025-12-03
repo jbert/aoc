@@ -18,6 +18,13 @@ type Range struct {
 	hi int
 }
 
+func cmpRange(a Range, b Range) int {
+	if a.lo == b.lo {
+		return b.hi - a.hi
+	}
+	return b.lo - a.lo
+}
+
 func (r Range) Contains(n int) bool {
 	return r.lo <= n && n <= r.hi
 }
@@ -151,6 +158,71 @@ func parseRange(s string) (Range, error) {
 	return Range{lo, hi}, nil
 }
 
+func (r Range) isSameDigitRange() bool {
+	nLo := numDigits(r.lo)
+	nHi := numDigits(r.hi)
+	return nLo == nHi
+}
+
+func (r Range) sameDigitRanges() []Range {
+	if r.isSameDigitRange() {
+		return []Range{r}
+	}
+	nLo := numDigits(r.lo)
+	up := pow10(nLo + 1)
+	lowRange := Range{r.lo, up - 1}
+	rest := Range{up, r.hi}.sameDigitRanges()
+	return append(rest, lowRange)
+}
+
+func (r Range) sdrInvalidIDs() []int {
+	if !r.isSameDigitRange() {
+		panic(fmt.Sprintf("sdrInvalidIDs called on non-SDR: %s", r))
+	}
+	nDig := numDigits(r.lo)
+	var ids []int
+	for iDig := range nDig / 2 {
+		digIDs := r.sdrInvalidIDsForSize(1 + iDig)
+		ids = append(ids, digIDs...)
+	}
+	return ids
+}
+
+func firstNDigits(v int, nDig int) int {
+	vDig := numDigits(v)
+	factor := pow10(vDig - nDig + 1)
+	return v / factor
+}
+
+func numToID(num int, copies int) int {
+	if copies == 1 {
+		return num
+	}
+	numDig := numDigits(num)
+	rest := numToID(num, copies-1)
+	factor := pow10(numDig + 1)
+	return rest*factor + num
+}
+
+func (r Range) sdrInvalidIDsForSize(sizeNumDigits int) []int {
+	rangeNumDigits := numDigits(r.lo)
+	if rangeNumDigits%sizeNumDigits != 0 {
+		return []int{}
+	}
+	copies := rangeNumDigits / sizeNumDigits
+
+	startNum := firstNDigits(r.lo, sizeNumDigits)
+	maxNum := pow10(sizeNumDigits + 1)
+	var ids []int
+	for num := startNum; num < maxNum; num += 1 {
+		id := numToID(num, copies)
+		if r.Contains(id) {
+			ids = append(ids, id)
+		}
+	}
+	return ids
+}
+
 func (d *Day2) Run(out io.Writer, lines []string) error {
 	line := strings.ReplaceAll(lines[0], " ", "")
 	rangeStrs := strings.Split(line, ",")
@@ -177,6 +249,16 @@ func (d *Day2) Run(out io.Writer, lines []string) error {
 		sum += fun.Sum(invalids)
 	}
 	fmt.Fprintf(out, "Part 1: %d\n", sum)
+
+	sum = 0
+	for _, r := range ranges {
+		sdrs := r.sameDigitRanges()
+		for _, sdr := range sdrs {
+			sdrIDs := sdr.sdrInvalidIDs()
+			sum += fun.Sum(sdrIDs)
+		}
+	}
+	fmt.Fprintf(out, "Part 2: %d\n", sum)
 
 	return nil
 }
