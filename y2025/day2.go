@@ -18,6 +18,10 @@ type Range struct {
 	hi int
 }
 
+func (r Range) Contains(n int) bool {
+	return r.lo <= n && n <= r.hi
+}
+
 func (r Range) String() string {
 	return fmt.Sprintf("%d->%d", r.lo, r.hi)
 }
@@ -25,7 +29,7 @@ func (r Range) String() string {
 func (r Range) SimpleRanges() []Range {
 	evenLo := upToEvenDigits(r.lo)
 	evenHi := downToEvenDigits(r.hi)
-	fmt.Printf("r %s evenLo %d evenHi %d\n", r, evenLo, evenHi)
+	// fmt.Printf("r %s evenLo %d evenHi %d\n", r, evenLo, evenHi)
 	var ranges []Range
 	if evenLo > evenHi {
 		return ranges
@@ -51,11 +55,12 @@ func (r Range) InvalidInSimpleRange() ([]int, error) {
 		return nil, fmt.Errorf("range %s not simple", r)
 	}
 	lo := max(firstHalf(r.lo), secondHalf(r.lo))
-	hi := min(firstHalf(r.hi), secondHalf(r.hi))
+	hi := max(firstHalf(r.hi), secondHalf(r.hi))
+	fmt.Printf("lo %d hi %d\n", lo, hi)
 	if hi < lo {
 		return nil, nil
 	}
-	fmt.Printf("lo %d hi %d\n", lo, hi)
+
 	nums := fun.Iota(lo, hi-lo+1)
 	numToId := func(n int) int {
 		nDig := numDigits(n)
@@ -63,6 +68,7 @@ func (r Range) InvalidInSimpleRange() ([]int, error) {
 		return n * (factor + 1)
 	}
 	ids := fun.Map(numToId, nums)
+	ids = fun.Filter(func(n int) bool { return r.Contains(n) }, ids)
 	// return []int{hi - lo + 1}, nil
 	return ids, nil
 }
@@ -143,18 +149,40 @@ func (d *Day2) Run(out io.Writer, lines []string) error {
 	if err != nil {
 		return fmt.Errorf("can't parse: %w", err)
 	}
-	sRangesNested := fun.Map(func(r Range) []Range { return r.SimpleRanges() }, ranges)
-	sRanges := fun.Flatten(sRangesNested)
-	nestedCounts, err := fun.ErrMap(func(r Range) ([]int, error) {
-		ids, err := r.InvalidInSimpleRange()
-		fmt.Fprintf(out, "r [%s] count %v err %s\n", r, ids, err)
-		return ids, err
-	}, sRanges)
-	if err != nil {
-		return fmt.Errorf("can't count simple ranges: %w", err)
+	sum := 0
+	for _, r := range ranges {
+		sRanges := r.SimpleRanges()
+		if len(sRanges) == 0 {
+			fmt.Printf("%s\n", r)
+			continue
+		}
+		if len(sRanges) != 1 {
+			panic(fmt.Sprintf("multiple simple: %s", sRanges))
+		}
+		sRange := sRanges[0]
+		invalids, err := sRange.InvalidInSimpleRange()
+		if err != nil {
+			panic(fmt.Sprintf("err %s", err))
+		}
+		fmt.Printf("%s => %s -> %v\n", r, sRange, invalids)
+		sum += fun.Sum(invalids)
 	}
-	counts := fun.Flatten(nestedCounts)
-	fmt.Fprintf(out, "Part 1: %d\n", fun.Sum(counts))
+	/*
+		nestedInvalids, err := fun.ErrMap(func(r Range) ([]int, error) {
+			ids, err := r.InvalidInSimpleRange()
+			fmt.Fprintf(out, "r [%s] count %v err %s\n", r, ids, err)
+			return ids, err
+		}, sRanges)
+		if err != nil {
+			return fmt.Errorf("can't count simple ranges: %w", err)
+		}
+		invalids := fun.Flatten(nestedInvalids)
+		invalids = sort.IntSlice(invalids)
+		for _, inv := range invalids {
+			fmt.Printf("%d\n", inv)
+		}
+	*/
+	fmt.Fprintf(out, "Part 1: %d\n", sum)
 
 	return nil
 }
