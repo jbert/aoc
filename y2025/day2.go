@@ -162,7 +162,7 @@ func (d *Day2) Run(out io.Writer, lines []string) error {
 	for _, r := range ranges {
 		sRanges := r.SimpleRanges()
 		if len(sRanges) == 0 {
-			fmt.Printf("%s\n", r)
+			// fmt.Printf("%s\n", r)
 			continue
 		}
 		if len(sRanges) != 1 {
@@ -173,24 +173,9 @@ func (d *Day2) Run(out io.Writer, lines []string) error {
 		if err != nil {
 			panic(fmt.Sprintf("err %s", err))
 		}
-		fmt.Printf("%s => %s -> %v\n", r, sRange, invalids)
+		// fmt.Printf("%s => %s -> %v\n", r, sRange, invalids)
 		sum += fun.Sum(invalids)
 	}
-	/*
-		nestedInvalids, err := fun.ErrMap(func(r Range) ([]int, error) {
-			ids, err := r.InvalidInSimpleRange()
-			fmt.Fprintf(out, "r [%s] count %v err %s\n", r, ids, err)
-			return ids, err
-		}, sRanges)
-		if err != nil {
-			return fmt.Errorf("can't count simple ranges: %w", err)
-		}
-		invalids := fun.Flatten(nestedInvalids)
-		invalids = sort.IntSlice(invalids)
-		for _, inv := range invalids {
-			fmt.Printf("%d\n", inv)
-		}
-	*/
 	fmt.Fprintf(out, "Part 1: %d\n", sum)
 
 	return nil
