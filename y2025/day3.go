@@ -27,11 +27,22 @@ func findMax(b []int) (int, int) {
 	return imx, mx
 }
 
-func maxJoltage(b []int) int {
+func maxJoltage2(b []int) int {
+	// l := len(b)
+	// ifirst, first := findMax(b[:l-1])
+	// _, second := findMax(b[ifirst+1:])
+	// return first*10 + second
+	return maxJoltageN(b, 2)
+}
+
+func maxJoltageN(b []int, n int) int {
+	if n == 0 {
+		return 0
+	}
 	l := len(b)
-	ifirst, first := findMax(b[:l-1])
-	_, second := findMax(b[ifirst+1:])
-	return first*10 + second
+	i, v := findMax(b[:l-(n-1)])
+	rest := maxJoltageN(b[i+1:], n-1)
+	return v*pow10(n) + rest
 }
 
 func mustAtoi(s string) int {
@@ -56,8 +67,10 @@ func (d *Day3) Run(out io.Writer, lines []string) error {
 	// for _, b := range banks {
 	// fmt.Fprintf(out, "%d\n", maxJoltage(b))
 	// }
-	joltages := fun.Map(maxJoltage, banks)
+	joltages := fun.Map(maxJoltage2, banks)
 	fmt.Printf("Part 1: %d\n", fun.Sum(joltages))
+	joltages = fun.Map(func(b []int) int { return maxJoltageN(b, 12) }, banks)
+	fmt.Printf("Part 2: %d\n", fun.Sum(joltages))
 
 	return nil
 }
