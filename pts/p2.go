@@ -26,6 +26,9 @@ var (
 	R = E
 	U = N
 	D = S
+
+	NESW       = []P2{N, E, S, W}
+	NEIGHBOURS = []P2{N, E, S, W, NE, SE, SW, NW}
 )
 
 func (p P2) String() string {

@@ -56,9 +56,9 @@ func (d *Day12) Run(out io.Writer, lines []string) error {
 
 func findAll(g grid.Grid[byte], c byte) []pts.P2 {
 	var ps []pts.P2
-	g.ForEachV(func(i, j int, v byte) {
+	g.ForEachV(func(p pts.P2, v byte) {
 		if v == c {
-			ps = append(ps, pts.P2{i, j})
+			ps = append(ps, p)
 		}
 	})
 	return ps

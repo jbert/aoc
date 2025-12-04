@@ -6,6 +6,7 @@ import (
 
 	"github.com/jbert/aoc"
 	"github.com/jbert/aoc/grid"
+	"github.com/jbert/aoc/pts"
 )
 
 type Day8 struct{}
@@ -31,8 +32,8 @@ func (d *Day8) Run(out io.Writer, lines []string) error {
 
 func (d *Day8) Part2(g grid.Grid[int]) error {
 	maxScore := 0
-	g.ForEach(func(i, j int) {
-		score := calcScore(i, j, g)
+	g.ForEach(func(p pts.P2) {
+		score := calcScore(p, g)
 		if score > maxScore {
 			maxScore = score
 		}
@@ -47,40 +48,40 @@ func (d *Day8) Part2(g grid.Grid[int]) error {
 	return nil
 }
 
-func calcScore(x int, y int, g grid.Grid[int]) int {
+func calcScore(p pts.P2, g grid.Grid[int]) int {
 	w := g.Width()
 	h := g.Height()
 
-	height := g.Get(x, y)
+	height := g.GetPt(p)
 
 	rTrees := 0
-	for i := x + 1; i < w; i++ {
+	for i := p.X + 1; i < w; i++ {
 		rTrees++
-		if g.Get(i, y) >= height {
+		if g.Get(i, p.Y) >= height {
 			break
 		}
 	}
 
 	lTrees := 0
-	for i := x - 1; i >= 0; i-- {
+	for i := p.X - 1; i >= 0; i-- {
 		lTrees++
-		if g.Get(i, y) >= height {
+		if g.Get(i, p.Y) >= height {
 			break
 		}
 	}
 
 	uTrees := 0
-	for j := y + 1; j < h; j++ {
+	for j := p.Y + 1; j < h; j++ {
 		uTrees++
-		if g.Get(x, j) >= height {
+		if g.Get(p.X, j) >= height {
 			break
 		}
 	}
 
 	dTrees := 0
-	for j := y - 1; j >= 0; j-- {
+	for j := p.Y - 1; j >= 0; j-- {
 		dTrees++
-		if g.Get(x, j) >= height {
+		if g.Get(p.X, j) >= height {
 			break
 		}
 	}

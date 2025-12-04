@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/jbert/aoc/grid"
+	"github.com/jbert/aoc/pts"
 	"github.com/jbert/aoc/year"
 )
 
@@ -48,9 +49,9 @@ func ByteGrid(lines []string) grid.Grid[byte] {
 	w := len(lines[0])
 	h := len(lines)
 	g := grid.New[byte](w, h)
-	g.ForEach(func(i, j int) {
-		c := lines[j][i]
-		g.Set(i, j, c)
+	g.ForEach(func(p pts.P2) {
+		c := lines[p.Y][p.X]
+		g.SetPt(p, c)
 	})
 	return g
 }
@@ -60,9 +61,9 @@ func IntGrid(lines []string) grid.Grid[int] {
 	w := len(lines[0])
 	h := len(lines)
 	g := grid.New[int](w, h)
-	g.ForEach(func(i, j int) {
-		c := lines[j][i]
-		g.Set(i, j, int(c-'0'))
+	g.ForEach(func(p pts.P2) {
+		c := lines[p.Y][p.X]
+		g.SetPt(p, int(c-'0'))
 	})
 	return g
 }
