@@ -13,23 +13,15 @@ import (
 
 type Day4 struct{ year.Year }
 
-func removablePts(g grid.Grid[string]) []pts.P2 {
-	hasPaper := func(p pts.P2) bool { return g.GetPt(p) == "@" }
-	countNeighbours := func(p pts.P2) int {
-		nsWithPaper := fun.Filter(hasPaper, g.AllNeighbourPts(p))
-		// fmt.Printf("p %v nsWithPaper %v\n", p, nsWithPaper)
-		// fmt.Printf("anp %v\n", g.AllNeighbourPts(p))
+func hasPaper(g grid.Grid[string], p pts.P2) bool { return g.GetPt(p) == "@" }
 
-		return len(nsWithPaper)
-	}
-
-	numNs := grid.NewFromFunc(g.Width(), g.Height(), countNeighbours)
+func removablePts(g grid.Grid[string], numNs grid.Grid[int]) []pts.P2 {
 	// for _, row := range numNs {
 	// fmt.Printf("%v\n", row)
 	// }
 	var ps []pts.P2
 	numNs.ForEach(func(p pts.P2) {
-		if hasPaper(p) && numNs.GetPt(p) < 4 {
+		if hasPaper(g, p) && numNs.GetPt(p) < 4 {
 			ps = append(ps, p)
 		}
 	})
@@ -42,15 +34,35 @@ func (d *Day4) Run(out io.Writer, lines []string) error {
 
 	g := grid.NewFromRows(rows)
 
-	remPts := removablePts(g)
+	// hasPaper := func(p pts.P2) bool { return g.GetPt(p) == "@" }
+	countNeighbours := func(p pts.P2) int {
+		nsWithPaper := fun.Filter(func(p pts.P2) bool { return hasPaper(g, p) }, g.AllNeighbourPts(p))
+		// fmt.Printf("p %v nsWithPaper %v\n", p, nsWithPaper)
+		// fmt.Printf("anp %v\n", g.AllNeighbourPts(p))
+
+		return len(nsWithPaper)
+	}
+
+	numNs := grid.NewFromFunc(g.Width(), g.Height(), countNeighbours)
+
+	remPts := removablePts(g, numNs)
 	fmt.Printf("Part 1: %d\n", len(remPts))
 
 	count := 0
 	for len(remPts) > 0 {
+		// Pick any point
 		p := remPts[0]
+		// Remove it
 		g.SetPt(p, ".")
+		// Decrease neighbour counts by one
+		ns := g.AllNeighbourPts(p)
+		for _, np := range ns {
+			numNs.SetPt(np, numNs.GetPt(np)-1)
+		}
+		// We did one
 		count += 1
-		remPts = removablePts(g)
+		// Try to find more
+		remPts = removablePts(g, numNs)
 	}
 	fmt.Printf("Part 2: %d\n", count)
 
