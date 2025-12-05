@@ -13,6 +13,13 @@ import (
 
 type Day5 struct{ year.Year }
 
+func (r Range) Overlaps(s Range) bool {
+	if r.lo > s.lo {
+		return s.Overlaps(r)
+	}
+	return r.hi >= s.lo
+}
+
 func (r Range) Join(s Range) (Range, error) {
 	if r.lo > s.lo {
 		return s.Join(r)

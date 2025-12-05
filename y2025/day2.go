@@ -21,9 +21,9 @@ type Range struct {
 
 func cmpRange(a Range, b Range) int {
 	if a.lo == b.lo {
-		return b.hi - a.hi
+		return a.hi - b.hi
 	}
-	return b.lo - a.lo
+	return a.lo - b.lo
 }
 
 func (r Range) Contains(n int) bool {
