@@ -49,8 +49,8 @@ func (d *Day5) Run(out io.Writer, lines []string) error {
 		panic(fmt.Sprintf("can't parse range: %s", err))
 	}
 	ids := fun.Map(num.MustAtoi, lgs[1])
-	// fmt.Printf("ranges: %v\n", ranges)
-	// fmt.Printf("ids: %v\n", ids)
+	fmt.Printf("num ranges: %v\n", len(ranges))
+	fmt.Printf("num ids: %v\n", len(ids))
 
 	isFresh := func(n int) bool {
 		for _, r := range ranges {
@@ -68,9 +68,11 @@ func (d *Day5) Run(out io.Writer, lines []string) error {
 	for len(ranges) > 1 {
 		r, err := ranges[0].Join(ranges[1])
 		if err == nil {
+			// fmt.Printf("JB0\n")
 			ranges = ranges[1:]
 			ranges[0] = r
 		} else {
+			// fmt.Printf("JB1\n")
 			joinedRanges = append(joinedRanges, ranges[0])
 			ranges = ranges[1:]
 		}
@@ -79,6 +81,23 @@ func (d *Day5) Run(out io.Writer, lines []string) error {
 	fmt.Printf("%v\n", joinedRanges)
 	sizes := fun.Map(func(r Range) int { return r.Size() }, joinedRanges)
 	fmt.Printf("Part 2 : %d\n", fun.Sum(sizes))
+
+	/*
+		for i := range joinedRanges {
+			for j := range joinedRanges {
+				if j <= i {
+					continue
+				}
+				if joinedRanges[i].Overlaps(joinedRanges[j]) {
+					fmt.Printf("LOGIC ERROR: %d %d", i, j)
+				}
+				_, err := joinedRanges[i].Join(joinedRanges[j])
+				if err == nil {
+					fmt.Printf("LOGIC ERROR2: %d %d", i, j)
+				}
+			}
+		}
+	*/
 
 	return nil
 }
