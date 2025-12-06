@@ -18,12 +18,12 @@ func lineToBits(l string) []string {
 	return bits
 }
 
-func applyOp(op string, a int, b int, c int) int {
+func applyOp(op string, xs []int) int {
 	switch op {
 	case "+":
-		return a + b + c
+		return fun.Sum(xs)
 	case "*":
-		return a * b * c
+		return fun.Prod(xs)
 	default:
 		panic(fmt.Sprintf("unknown op: %s", op))
 	}
@@ -31,27 +31,28 @@ func applyOp(op string, a int, b int, c int) int {
 
 func (d *Day6) Run(out io.Writer, lines []string) error {
 	fmt.Fprintf(out, "Running\n")
-	as := fun.Map(num.MustAtoi, lineToBits(lines[0]))
-	bs := fun.Map(num.MustAtoi, lineToBits(lines[1]))
-	cs := fun.Map(num.MustAtoi, lineToBits(lines[2]))
-	ops := lineToBits(lines[3])
-	fmt.Printf("%v\n", as)
-	fmt.Printf("%v\n", bs)
-	fmt.Printf("%v\n", cs)
+
+	ops := lineToBits(lines[len(lines)-1])
+	n := len(ops)
+	lines = lines[:n-1]
+
+	var xss [][]int
+	for _, l := range lines {
+		xs := fun.Map(num.MustAtoi, lineToBits(l))
+		if len(xs) != n {
+			return fmt.Errorf("diff number of ops (%d) and xs (%d)", n, len(xs))
+		}
+		xss = append(xss, xs)
+	}
 	fmt.Printf("%v\n", ops)
-	n := len(as)
-	if len(bs) != n {
-		return fmt.Errorf("diff number of as (%d) and bs (%d)", n, len(bs))
-	}
-	if len(cs) != n {
-		return fmt.Errorf("diff number of as (%d) and cs (%d)", n, len(cs))
-	}
-	if len(ops) != n {
-		return fmt.Errorf("diff number of as (%d) and ops(%d)", n, len(ops))
-	}
+	fmt.Printf("%v\n", xss)
 	sum := 0
 	for i := range n {
-		v := applyOp(ops[i], as[i], bs[i], cs[i])
+		var xs []int
+		for _, l := range xss {
+			xs = append(xs, l[i])
+		}
+		v := applyOp(ops[i], xs)
 		sum += v
 	}
 
