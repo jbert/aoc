@@ -34,7 +34,7 @@ func (d *Day6) Run(out io.Writer, lines []string) error {
 
 	ops := lineToBits(lines[len(lines)-1])
 	n := len(ops)
-	lines = lines[:n-1]
+	lines = lines[:len(lines)-1]
 
 	var xss [][]int
 	for _, l := range lines {
@@ -44,8 +44,8 @@ func (d *Day6) Run(out io.Writer, lines []string) error {
 		}
 		xss = append(xss, xs)
 	}
-	fmt.Printf("%v\n", ops)
-	fmt.Printf("%v\n", xss)
+	// fmt.Printf("%v\n", ops)
+	// fmt.Printf("%v\n", xss)
 	sum := 0
 	for i := range n {
 		var xs []int
