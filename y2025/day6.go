@@ -41,10 +41,15 @@ func nthDigit(x int, j int) int {
 	return x % 10
 }
 
-func joinDigits(digs []int) int {
+func digToNum(dig byte) int {
+	return int(dig - '0')
+}
+
+func joinDigits(digs []byte) int {
 	x := 0
+	digs = fun.Filter(func(b byte) bool { return b != ' ' }, digs)
 	for i, dig := range digs {
-		x += dig
+		x += digToNum(dig)
 		if i != len(digs)-1 {
 			x *= 10
 		}
@@ -52,34 +57,19 @@ func joinDigits(digs []int) int {
 	return x
 }
 
-func cephTransform(xs []int) []int {
-	numCols := 0
-	for _, x := range xs {
-		numDig := numDigits(x)
-		if numDig > numCols {
-			numCols = numDig
+func cephParseBlock(lines []string, loCol int, hiCol int) []int {
+	loCol += 1
+	hiCol -= 1
+	var xs []int
+	for i := loCol; i <= hiCol; i++ {
+		var digits []byte
+		for j := range lines {
+			digits = append(digits, lines[j][i])
 		}
+		x := joinDigits(digits)
+		xs = append(xs, x)
 	}
-
-	offsets := make([]int, len(xs))
-	for i, x := range xs {
-		numDig := numDigits(x)
-		offsets[i] = numCols - numDig
-	}
-
-	var cxs []int
-	for i := range numCols {
-
-		var cxDig []int
-		for j, x := range xs {
-			if i >= offsets[j] {
-				cxDig = append(cxDig, nthDigit(x, i-offsets[j]))
-			}
-		}
-		cx := joinDigits(cxDig)
-		cxs = append(cxs, cx)
-	}
-	return cxs
+	return xs
 }
 
 func (d *Day6) Run(out io.Writer, lines []string) error {
@@ -111,15 +101,34 @@ func (d *Day6) Run(out io.Writer, lines []string) error {
 
 	fmt.Printf("Part 1: %d\n", sum)
 
+	var spaceCols []int
+COL:
+	for i := range lines[0] {
+		for j := range lines {
+			if lines[j][i] != ' ' {
+				continue COL
+			}
+		}
+		spaceCols = append(spaceCols, i)
+	}
+	// fmt.Printf("%v\n", spaceCols)
+	xss = [][]int{}
+
+	spaceCols = append([]int{-1}, spaceCols...)
+	spaceCols = append(spaceCols, len(lines[0]))
+	for i := range spaceCols {
+		if i == 0 {
+			continue
+		}
+		xs := cephParseBlock(lines, spaceCols[i-1], spaceCols[i])
+		xss = append(xss, xs)
+	}
+
+	// fmt.Printf("ops %v\n", ops)
+	// fmt.Printf("xss %v\n", xss)
 	sum = 0
 	for i := range n {
-		var xs []int
-		for _, l := range xss {
-			xs = append(xs, l[i])
-		}
-		xs = cephTransform(xs)
-		// fmt.Printf("xs %d\n", xs)
-		v := applyOp(ops[i], xs)
+		v := applyOp(ops[i], xss[i])
 		sum += v
 	}
 
