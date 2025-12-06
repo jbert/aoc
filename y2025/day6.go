@@ -29,6 +29,59 @@ func applyOp(op string, xs []int) int {
 	}
 }
 
+// zero indexed n'th digit
+// 123, 0 -> 1
+// 123, 2 -> 3
+func nthDigit(x int, j int) int {
+	// i := numDigits(x) - j - 1
+	factor := pow10(j + 1)
+	// fmt.Printf("ND: x %d j %d i %d factor %d\n", x, j, i, factor)
+	x /= factor
+	// fmt.Printf("ND:  %d j %d -> %d\n", x*factor, j, x%10)
+	return x % 10
+}
+
+func joinDigits(digs []int) int {
+	x := 0
+	for i, dig := range digs {
+		x += dig
+		if i != len(digs)-1 {
+			x *= 10
+		}
+	}
+	return x
+}
+
+func cephTransform(xs []int) []int {
+	numCols := 0
+	for _, x := range xs {
+		numDig := numDigits(x)
+		if numDig > numCols {
+			numCols = numDig
+		}
+	}
+
+	offsets := make([]int, len(xs))
+	for i, x := range xs {
+		numDig := numDigits(x)
+		offsets[i] = numCols - numDig
+	}
+
+	var cxs []int
+	for i := range numCols {
+
+		var cxDig []int
+		for j, x := range xs {
+			if i >= offsets[j] {
+				cxDig = append(cxDig, nthDigit(x, i-offsets[j]))
+			}
+		}
+		cx := joinDigits(cxDig)
+		cxs = append(cxs, cx)
+	}
+	return cxs
+}
+
 func (d *Day6) Run(out io.Writer, lines []string) error {
 	fmt.Fprintf(out, "Running\n")
 
@@ -57,7 +110,20 @@ func (d *Day6) Run(out io.Writer, lines []string) error {
 	}
 
 	fmt.Printf("Part 1: %d\n", sum)
-	// fmt.Printf("Part 2: %d\n", fun.Sum(joltages))
+
+	sum = 0
+	for i := range n {
+		var xs []int
+		for _, l := range xss {
+			xs = append(xs, l[i])
+		}
+		xs = cephTransform(xs)
+		// fmt.Printf("xs %d\n", xs)
+		v := applyOp(ops[i], xs)
+		sum += v
+	}
+
+	fmt.Printf("Part 2: %d\n", sum)
 
 	return nil
 }
