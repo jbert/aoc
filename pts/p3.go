@@ -2,6 +2,7 @@ package pts
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -37,6 +38,10 @@ func P3FromString(s string) P3 {
 		panic(fmt.Sprintf("Bad Z coord [%s]: %s", bits[2], err))
 	}
 	return p
+}
+
+func (p P3) EuclideanLength() float64 {
+	return math.Sqrt(float64(p.X)*float64(p.X) + float64(p.Y)*float64(p.Y) + float64(p.Z)*float64(p.Z))
 }
 
 func (p P3) ManhattanLength() int {
