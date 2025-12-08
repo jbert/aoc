@@ -35,12 +35,16 @@ func (e Edge) Length() float64 {
 }
 
 type Circuits struct {
-	cids map[pts.P3]int
+	cids      map[pts.P3]int
+	_numCircs int
 }
 
 func FromPts(ps []pts.P3) *Circuits {
 	cid := 0
-	cs := Circuits{cids: make(map[pts.P3]int)}
+	cs := Circuits{
+		cids:      make(map[pts.P3]int),
+		_numCircs: len(ps),
+	}
 	for _, p := range ps {
 		cs.cids[p] = cid
 		cid++
@@ -52,12 +56,16 @@ func (c *Circuits) join(e Edge) {
 	// fmt.Printf("JOIN: %s\n", e)
 	ca := c.cids[e.a]
 	cb := c.cids[e.b]
+	if ca == cb {
+		return
+	}
 	cid := min(ca, cb)
 	for p := range c.cids {
 		if c.cids[p] == ca || c.cids[p] == cb {
 			c.cids[p] = cid
 		}
 	}
+	c._numCircs--
 }
 
 func (c *Circuits) maxCID() int {
@@ -68,6 +76,10 @@ func (c *Circuits) maxCID() int {
 		}
 	}
 	return mxcid
+}
+
+func (c *Circuits) numCircs() int {
+	return c._numCircs
 }
 
 func (c *Circuits) CircuitLists() [][]pts.P3 {
@@ -141,10 +153,30 @@ LOOPING:
 	sizes := fun.Map(func(l []pts.P3) int { return len(l) }, circs)
 	sort.Ints(sizes)
 	sizes = fun.Reverse(sizes)
-	fmt.Printf("%v\n", sizes)
+	// fmt.Printf("%v\n", sizes)
 
 	fmt.Printf("Part 1: %d\n", sizes[0]*sizes[1]*sizes[2])
-	// fmt.Printf("Part 2: %d\n", fun.Sum(joltages))
+
+	cs = FromPts(ps)
+	var lastEdge Edge
+P2LOOP:
+	for _, d := range ds {
+		es := distList[d].ToList()
+		for _, e := range es {
+			cs.join(e)
+			// fmt.Printf("JOIN: %s -> %d\n", e, cs.numCircs())
+			if cs.numCircs() == 1 {
+				// fmt.Printf("JB - found last edge: %s\n", e)
+				lastEdge = e
+				break P2LOOP
+			} else {
+				// fmt.Printf("JB - still have %d circuits\n", cs.numCircs())
+			}
+		}
+	}
+	// fmt.Printf("LE: %s\n", lastEdge)
+
+	fmt.Printf("Part 2: %d\n", lastEdge.a.X*lastEdge.b.X)
 
 	return nil
 }
