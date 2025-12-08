@@ -11,4 +11,5 @@ var dayFuncs = map[int]year.Day{
 	5: &Day5{},
 	6: &Day6{},
 	7: &Day7{},
+	8: &Day8{},
 }
