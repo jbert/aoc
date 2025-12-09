@@ -12,6 +12,14 @@ type P2 struct {
 	X, Y int
 }
 
+func CmpP2(a P2, b P2) int {
+	c := a.X - b.X
+	if c != 0 {
+		return c
+	}
+	return a.Y - b.Y
+}
+
 var (
 	N  P2 = P2{0, +1}
 	E     = P2{+1, 0}
