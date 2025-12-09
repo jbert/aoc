@@ -12,6 +12,8 @@ type P2 struct {
 	X, Y int
 }
 
+var p2zero = P2{X: 0, Y: 0}
+
 func CmpP2(a P2, b P2) int {
 	c := a.X - b.X
 	if c != 0 {
@@ -75,6 +77,10 @@ func (p P2) Add(q P2) P2 {
 		X: p.X + q.X,
 		Y: p.Y + q.Y,
 	}
+}
+
+func (p P2) Neg() P2 {
+	return p2zero.Sub(p)
 }
 
 func (p P2) Sub(q P2) P2 {
