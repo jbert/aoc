@@ -33,3 +33,23 @@ func (r Rect) Area() int {
 	h := r.tr.Y - r.bl.Y + 1
 	return w * h
 }
+
+func (r Rect) BL() P2 {
+	return r.bl
+}
+
+func (r Rect) TL() P2 {
+	l := r.bl.X
+	t := r.tr.Y
+	return P2{X: l, Y: t}
+}
+
+func (r Rect) TR() P2 {
+	return r.tr
+}
+
+func (r Rect) BR() P2 {
+	rr := r.tr.X
+	b := r.bl.Y
+	return P2{X: rr, Y: b}
+}
