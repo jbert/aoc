@@ -15,14 +15,14 @@ import (
 type Day10 struct{ year.Year }
 
 type machine struct {
-	wanted    int
-	wiring    []int
-	joltages  []int
-	numLights int
+	wanted               int
+	wiring               []int
+	joltages             []int
+	numLightsAndJoltages int
 }
 
 func (m machine) String() string {
-	return fmt.Sprintf("%0*b: %v {%v} [%d]", m.numLights, m.wanted, m.wiring, m.joltages, m.numLights)
+	return fmt.Sprintf("%0*b: %v {%v} [%d]", m.numLightsAndJoltages, m.wanted, m.wiring, m.joltages, m.numLightsAndJoltages)
 }
 
 func (m machine) numButtons() int {
@@ -30,12 +30,17 @@ func (m machine) numButtons() int {
 }
 
 func (m machine) getMatrix() mat.Matrix {
-	mt := mat.NewDense(m.numLights, m.numButtons(), nil)
-	for i, button := range m.wiring {
-		bs, _ := intToBools(button, m.numButtons())
-		for j, b := range bs {
+	fmt.Printf("------\nGM: %s\n", m)
+	mt := mat.NewDense(m.numLightsAndJoltages, m.numButtons(), nil)
+	for col, button := range m.wiring {
+		bs, _ := intToBools(button, m.numLightsAndJoltages)
+		bs = fun.Reverse(bs)
+		for row, b := range bs {
+			fmt.Printf("row %d col %d\n", row, col)
 			if b {
-				mt.Set(j, i, 1)
+				mt.Set(row, col, 1)
+			} else {
+				mt.Set(row, col, 0)
 			}
 		}
 	}
@@ -43,11 +48,11 @@ func (m machine) getMatrix() mat.Matrix {
 }
 
 func (m machine) getJoltageVec() mat.Vector {
-	fj := make([]float64, m.numLights)
+	fj := make([]float64, m.numLightsAndJoltages)
 	for i, jlt := range m.joltages {
 		fj[i] = float64(jlt)
 	}
-	v := mat.NewVecDense(m.numLights, fj)
+	v := mat.NewVecDense(m.numLightsAndJoltages, fj)
 	return v
 }
 
@@ -87,13 +92,13 @@ func machineFromString(s string) *machine {
 	jStr := bits[len(bits)-1]
 	joltages := aoc.StringToInts(jStr[1 : len(jStr)-1])
 	m := &machine{
-		wanted:    wanted,
-		wiring:    wiring,
-		joltages:  joltages,
-		numLights: len(bits[0]) - 2,
+		wanted:               wanted,
+		wiring:               wiring,
+		joltages:             joltages,
+		numLightsAndJoltages: len(bits[0]) - 2,
 	}
-	if len(joltages) != m.numLights {
-		panic(fmt.Sprintf("----\n%s\ndifferent joltages [%d] to lights [%d]\n", s, len(joltages), m.numLights))
+	if len(joltages) != m.numLightsAndJoltages {
+		panic(fmt.Sprintf("----\n%s\ndifferent joltages [%d] to lights [%d]\n", s, len(joltages), m.numLightsAndJoltages))
 	}
 	return m
 }
