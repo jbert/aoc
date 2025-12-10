@@ -8,8 +8,10 @@ import (
 	"strings"
 
 	"github.com/jbert/aoc/grid"
+	"github.com/jbert/aoc/num"
 	"github.com/jbert/aoc/pts"
 	"github.com/jbert/aoc/year"
+	"github.com/jbert/fun"
 )
 
 type Day interface {
@@ -42,6 +44,12 @@ func getLines(workDir string, day int, test bool) []string {
 		lines = lines[:len(lines)-1]
 	}
 	return lines
+}
+
+// string to ints
+func StringToInts(s string) []int {
+	bits := strings.Split(s, ",")
+	return fun.Map(num.MustAtoi, bits)
 }
 
 // Get lines as a char/byte grid

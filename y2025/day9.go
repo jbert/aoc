@@ -28,14 +28,7 @@ func iAbs(n int) int {
 }
 
 func (s Seg) Dir() pts.P2 {
-	dir := s.to.Sub(s.fr)
-	if dir.X != 0 {
-		dir.X /= iAbs(dir.X)
-	}
-	if dir.Y != 0 {
-		dir.Y /= iAbs(dir.Y)
-	}
-	return dir
+	return s.to.Sub(s.fr).Normalise()
 }
 
 func (s Seg) Pts() []pts.P2 {
@@ -48,6 +41,36 @@ func (s Seg) Pts() []pts.P2 {
 		}
 	}
 	return ps
+}
+
+func (s Seg) isVertical() bool {
+	return s.fr.X == s.to.X
+}
+
+func (s Seg) reverse() Seg {
+	return Seg{fr: s.to, to: s.fr}
+}
+
+func (s Seg) isLeftTurn(t Seg) bool {
+	sDir := s.Dir()
+	tDir := t.Dir()
+	if sDir.Equals(tDir) {
+		panic("logic error: same dir")
+	}
+	if sDir.Equals(tDir.Neg()) {
+		panic("logic error: reverse dir")
+	}
+	if sDir.Equals(pts.N) {
+		return sDir.Equals(pts.W)
+	} else if tDir.Equals(pts.E) {
+		return tDir.Equals(pts.N)
+	} else if sDir.Equals(pts.S) {
+		return tDir.Equals(pts.E)
+	} else if sDir.Equals(pts.W) {
+		return tDir.Equals(pts.S)
+	} else {
+		panic(fmt.Sprintf("wtf: %s => %s", sDir, tDir))
+	}
 }
 
 func (d *Day9) Run(out io.Writer, lines []string) error {
@@ -92,7 +115,8 @@ func (d *Day9) Run(out io.Writer, lines []string) error {
 	// isRed := func(p pts.P2) bool { return sps.Contains(p) }
 
 	g := grid.New[bool](mxx+1, mxy+1)
-	p2seg := make(map[pts.P2]Seg)
+	p2segFr := make(map[pts.P2]Seg)
+	p2segTo := make(map[pts.P2]Seg)
 
 	for i, q := range ps {
 		var p pts.P2
@@ -102,17 +126,43 @@ func (d *Day9) Run(out io.Writer, lines []string) error {
 			p = ps[i-1]
 		}
 		seg := Seg{fr: p, to: q}
-		p2seg[q] = seg
+		p2segFr[q] = seg
+		p2segTo[p] = seg
 	}
 
-	segs := maps.Values(p2seg)
-
+	segs := maps.Values(p2segFr)
 	for seg := range segs {
 		ps := seg.Pts()
 		for _, p := range ps {
 			g.SetPt(p, true)
 		}
 	}
+
+	/*
+		isGreen := false
+		for i := 0; i <= mxx; i++ {
+			for j := 0; j <= mxy; j++ {
+				p := pts.P2{X: i, Y: j}
+
+				seg := p2segFr[p]
+				prev := p2segTo[p]
+				nxt := p2segFr[seg.to]
+				to := seg.to
+				// We are scanning vertically. One of seg or prev will be vertical.
+				// If it is prev, we need to go backwards
+				if prev.isVertical() {
+					seg = seg.reverse()
+					nxt, prev = prev.reverse(), nxt.reverse()
+				}
+
+				if prev.isLeftTurn(seg) == seg.isLeftTurn(nxt) {
+					// Same turn? Not an intersection
+				} else {
+					// Essentially a wiggle in a straight line. We have crossed something.
+				}
+			}
+		}
+	*/
 
 	printGrid(out, g)
 	// fmt.Printf("Part 2: %d\n", mxArea)

@@ -107,3 +107,32 @@ func (p P2) Div(n int) P2 {
 func (p P2) Equals(q P2) bool {
 	return p.X == q.X && p.Y == q.Y
 }
+
+func (p P2) Dot(q P2) int {
+	return p.X*q.X + p.Y*q.Y
+}
+
+func iAbs(n int) int {
+	if n >= 0 {
+		return n
+	}
+	return -n
+}
+
+func (p P2) Normalise() P2 {
+	if p.X != 0 && p.Y != 0 {
+		panic("can't normalise non-compass dir")
+	}
+	if p.IsZero() {
+		panic("can't normalise zero vector")
+	}
+	if p.X != 0 {
+		x := p.X / iAbs(p.X)
+		return P2{X: x, Y: 0}
+	}
+	if p.Y != 0 {
+		y := p.Y / iAbs(p.Y)
+		return P2{X: 0, Y: y}
+	}
+	panic("wtf")
+}
