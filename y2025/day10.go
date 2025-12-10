@@ -9,6 +9,7 @@ import (
 	"github.com/jbert/aoc/year"
 	"github.com/jbert/fun"
 	"github.com/jbert/set"
+	"gonum.org/v1/gonum/mat"
 )
 
 type Day10 struct{ year.Year }
@@ -26,6 +27,28 @@ func (m machine) String() string {
 
 func (m machine) numButtons() int {
 	return len(m.wiring)
+}
+
+func (m machine) getMatrix() mat.Matrix {
+	mt := mat.NewDense(m.numLights, m.numButtons(), nil)
+	for i, button := range m.wiring {
+		bs, _ := intToBools(button, m.numButtons())
+		for j, b := range bs {
+			if b {
+				mt.Set(j, i, 1)
+			}
+		}
+	}
+	return mt
+}
+
+func (m machine) getJoltageVec() mat.Vector {
+	fj := make([]float64, m.numLights)
+	for i, jlt := range m.joltages {
+		fj[i] = float64(jlt)
+	}
+	v := mat.NewVecDense(m.numLights, fj)
+	return v
 }
 
 func parseWanted(s string) int {
@@ -63,12 +86,16 @@ func machineFromString(s string) *machine {
 	wiring := fun.Map(parseWiring, bits[1:len(bits)-1])
 	jStr := bits[len(bits)-1]
 	joltages := aoc.StringToInts(jStr[1 : len(jStr)-1])
-	return &machine{
+	m := &machine{
 		wanted:    wanted,
 		wiring:    wiring,
 		joltages:  joltages,
 		numLights: len(bits[0]) - 2,
 	}
+	if len(joltages) != m.numLights {
+		panic(fmt.Sprintf("----\n%s\ndifferent joltages [%d] to lights [%d]\n", s, len(joltages), m.numLights))
+	}
+	return m
 }
 
 func popcount(n int) int {
@@ -126,6 +153,10 @@ func (m machine) bestPress() int {
 	return bestPresses
 }
 
+func matString(X mat.Matrix) string {
+	return fmt.Sprintf("%v", mat.Formatted(X, mat.Prefix(""), mat.Squeeze()))
+}
+
 func (d *Day10) Run(out io.Writer, lines []string) error {
 	fmt.Fprintf(out, "Running\n")
 	ms := fun.Map(machineFromString, lines)
@@ -135,7 +166,21 @@ func (d *Day10) Run(out io.Writer, lines []string) error {
 	presses := fun.Map(func(m *machine) int { return m.bestPress() }, ms)
 	fmt.Printf("presses: %v\n", presses)
 
+	for _, m := range ms {
+		mt := m.getMatrix()
+		fmt.Printf("MT\n%s\n", matString(mt))
+		v := m.getJoltageVec()
+		fmt.Printf("V %v\n", v)
+		var a mat.VecDense
+		err := a.SolveVec(mt, v)
+		if err != nil {
+			fmt.Printf("Can't solve: %s\n", err)
+			continue
+		}
+		fmt.Printf("A %v\n", a)
+	}
 	fmt.Printf("Part 1: %d\n", fun.Sum(presses))
+
 	// fmt.Printf("Part 2: %d\n", fun.Sum(joltages))
 
 	return nil
