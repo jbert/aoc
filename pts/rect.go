@@ -12,7 +12,7 @@ func NewRect(p P2, q P2) Rect {
 	r := max(p.X, q.X)
 	b := min(p.Y, q.Y)
 	t := max(p.Y, q.Y)
-	return Rect{bl: P2{b, l}, tr: P2{t, r}}
+	return Rect{bl: P2{l, b}, tr: P2{r, t}}
 }
 
 func (r Rect) String() string {
@@ -52,4 +52,17 @@ func (r Rect) BR() P2 {
 	rr := r.tr.X
 	b := r.bl.Y
 	return P2{X: rr, Y: b}
+}
+
+// All pts in rect (including edges)
+func (r Rect) AllPts() []P2 {
+	// ps = make([]pts.P2, r.Width()+1*r.Height()+1)
+	var ps []P2
+	for i := r.bl.X; i <= r.tr.X; i++ {
+		for j := r.bl.Y; j <= r.tr.Y; j++ {
+			ps = append(ps, P2{i, j})
+		}
+	}
+	// fmt.Printf("JB rect: %s\nps %v\n", r, ps)
+	return ps
 }

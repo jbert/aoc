@@ -136,3 +136,26 @@ func (g Graph[V]) Remove(v V) (*Graph[V], []Edge[V]) {
 
 	return g2, removedEdges
 }
+
+type Path[V comparable] []Edge[V]
+
+func (p Path[V]) Prepend(e Edge[V]) Path[V] {
+	return append(Path[V]{e}, p...)
+}
+
+func (g Graph[V]) FindAllPaths(fr V, to V) []Path[V] {
+	if fr == to {
+		return []Path[V]{{}}
+	}
+
+	steps := g[fr]
+	var allPaths []Path[V]
+	steps.ForEach(func(e Edge[V]) {
+		rest := g.FindAllPaths(e.To, to)
+		paths := fun.Map(func(p Path[V]) Path[V] { return p.Prepend(e) }, rest)
+		for _, p := range paths {
+			allPaths = append(allPaths, p)
+		}
+	})
+	return allPaths
+}

@@ -11,6 +11,7 @@ import (
 	"github.com/jbert/aoc/pts"
 	"github.com/jbert/aoc/year"
 	"github.com/jbert/fun"
+	"github.com/jbert/set"
 )
 
 type Day9 struct{ year.Year }
@@ -130,6 +131,7 @@ func (d *Day9) Run(out io.Writer, lines []string) error {
 		p2segTo[p] = seg
 	}
 
+	// Draw in the border as true
 	segs := maps.Values(p2segFr)
 	for seg := range segs {
 		ps := seg.Pts()
@@ -137,35 +139,80 @@ func (d *Day9) Run(out io.Writer, lines []string) error {
 			g.SetPt(p, true)
 		}
 	}
+	fmt.Printf("JB1 - drawn border\n")
 
-	/*
-		isGreen := false
-		for i := 0; i <= mxx; i++ {
-			for j := 0; j <= mxy; j++ {
-				p := pts.P2{X: i, Y: j}
+	// Flood fill the outside as true
+	todo := set.NewFromList([]pts.P2{{X: 0, Y: 0}})
+	imsg := 0
+	mxtodo := g.Width() * g.Height()
+ADDING:
+	for todo.Size() > 0 {
+		if imsg%100000 == 0 {
+			fmt.Printf("%d %5f%% TODO: %d\n", imsg, 100*float64(imsg)/float64(mxtodo), todo.Size())
+		}
+		p, err := todo.Take()
+		if err != nil {
+			panic("can't take from non-empty set")
+		}
+		// Stop at border and also anything we may have already done
+		if g.GetPt(p) {
+			continue ADDING
+		}
 
-				seg := p2segFr[p]
-				prev := p2segTo[p]
-				nxt := p2segFr[seg.to]
-				to := seg.to
-				// We are scanning vertically. One of seg or prev will be vertical.
-				// If it is prev, we need to go backwards
-				if prev.isVertical() {
-					seg = seg.reverse()
-					nxt, prev = prev.reverse(), nxt.reverse()
-				}
+		g.SetPt(p, true)
 
-				if prev.isLeftTurn(seg) == seg.isLeftTurn(nxt) {
-					// Same turn? Not an intersection
-				} else {
-					// Essentially a wiggle in a straight line. We have crossed something.
-				}
+		nxt := g.CardinalNeighbourPts(p)
+		for _, q := range nxt {
+			if !g.GetPt(q) {
+				todo.Insert(q)
 			}
 		}
-	*/
+		imsg++
+	}
+	fmt.Printf("JB1 - done flood fill\n")
 
-	printGrid(out, g)
-	// fmt.Printf("Part 2: %d\n", mxArea)
+	// Invert grid
+	g = grid.Fmap(g, func(b bool) bool { return !b })
+	fmt.Printf("JB1 - done invert\n")
+	// Re-draw in the border as true
+	for seg := range segs {
+		ps := seg.Pts()
+		for _, p := range ps {
+			g.SetPt(p, true)
+		}
+	}
+	fmt.Printf("JB1 - re-drawn border\n")
+
+	// Run same algorithm, but check area all true
+	mxArea = 0
+	mxx = 0
+	mxy = 0
+	for i := range ps {
+	RECT:
+		for j := range ps {
+			if j <= i {
+				continue
+			}
+			r := pts.NewRect(ps[i], ps[j])
+			// fmt.Printf("JB - ps[i] %s ps[j] %s r %+v\n", ps[i], ps[j], r)
+			ps := r.AllPts()
+			// fmt.Printf("JB - g: %+v\n", g)
+			for _, p := range ps {
+				if !g.GetPt(p) {
+					continue RECT
+				}
+			}
+			ra := r.Area()
+
+			// fmt.Printf("RA %d R: %s\n", ra, r)
+			if ra > mxArea {
+				mxArea = ra
+				// mxRect = r
+			}
+		}
+	}
+	// printGrid(out, g)
+	fmt.Printf("Part 2: %d\n", mxArea)
 	return nil
 }
 
