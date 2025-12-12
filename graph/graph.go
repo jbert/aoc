@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/jbert/aoc/matrix"
 	"github.com/jbert/fun"
 	"github.com/jbert/set"
 )
@@ -31,6 +32,30 @@ func (g Graph[V]) Copy() *Graph[V] {
 	return NewFromEdges(es, false)
 }
 
+func (g Graph[V]) AdjacencyMatrixFromOrder(order map[V]int) matrix.Mat {
+	w := len(order)
+	fmt.Printf("g: %+v\n", g)
+	fmt.Printf("w %d\n", w)
+	m := matrix.New(w, w)
+	for v, es := range g {
+		j := order[v]
+		for e := range es {
+			i := order[e.To]
+			m.Set(i, j, 1)
+		}
+	}
+	return m
+}
+
+func (g Graph[V]) AdjacencyMatrix() (matrix.Mat, map[V]int) {
+	vorder := g.Vertices()
+	order := make(map[V]int)
+	for i, v := range vorder {
+		order[v] = i
+	}
+	return g.AdjacencyMatrixFromOrder(order), order
+}
+
 func (g Graph[V]) ToDot(w io.Writer, name string) {
 	// TODO: support directed/undirected properly (in code and Dot)
 	fmt.Fprintf(w, "graph %s {\n", name)
@@ -53,11 +78,12 @@ func (g Graph[V]) Edges() []Edge[V] {
 }
 
 func (g Graph[V]) Vertices() []V {
-	var vs []V
-	for v := range g {
-		vs = append(vs, v)
+	vs := set.New[V]()
+	for v, es := range g {
+		vs.Insert(v)
+		es.ForEach(func(e Edge[V]) { vs.Insert(e.To) })
 	}
-	return vs
+	return vs.ToList()
 }
 
 func (g Graph[V]) String() string {

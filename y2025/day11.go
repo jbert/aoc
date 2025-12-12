@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/jbert/aoc/graph"
+	"github.com/jbert/aoc/matrix"
 	"github.com/jbert/aoc/year"
-	"github.com/jbert/set"
 )
 
 type Day11 struct{ year.Year }
@@ -53,34 +54,41 @@ func (d *Day11) Run(out io.Writer, lines []string) error {
 }
 
 func countPaths(fr string, to string, g *graph.Graph[string]) int {
-	labels := labelVertices(fr, to, g)
-	fmt.Printf("labels: %+v\n", labels)
-	return labels[to]
-}
-
-func labelVertices(fr string, to string, g *graph.Graph[string]) map[string]int {
-	labels := make(map[string]int)
-
-	addTo := func(v string, n int) {
-		nn := labels[v]
-		nn++
-		labels[v] = nn
+	vorder := g.Vertices()
+	slices.Sort(vorder)
+	order := make(map[string]int)
+	for i, v := range vorder {
+		order[v] = i
 	}
-	addOne := func(v string) { addTo(v, 1) }
-	todo := set.NewFromList[string](g.Neighbours(fr))
-	todo.ForEach(addOne)
+	m := g.AdjacencyMatrixFromOrder(order)
+	// fmt.Printf("m %v\n", m)
+	// for i := range 2 {
+	// 	for j := range 2 {
+	// 		fmt.Printf("i %d j %d Get(i,j) %d\n", i, j, m.Get(i, j))
+	// 	}
+	// }
+	mx := len(order)
+	ifr := order[fr]
+	ito := order[to]
 
-	for todo.Size() > 0 {
-		v, err := todo.Take()
+	// fmt.Printf("order %v\n", order)
+	// fmt.Printf("fr %s to %s\n", fr, to)
+	// fmt.Printf("ifr %d ito %d\n", ifr, ito)
+
+	npaths := m.Get(ito, ifr)
+	// fmt.Printf("1-length: %d\n", npaths)
+	a := m.Copy()
+	steps := 1
+	for range mx {
+		var err error
+		a, err = matrix.Mult(a, m)
 		if err != nil {
-			panic("take on non-empty set failed")
+			panic("wtf")
 		}
-		ns := g.Neighbours(v)
-		for _, nv := range ns {
-			addTo(nv, labels[v])
-			todo.Insert(nv)
-		}
+		steps++
+		// fmt.Printf("a %v\n", a)
+		npaths += a.Get(ito, ifr)
+		// fmt.Printf("%d length: %v\n", steps, a.Get(ifr, ito))
 	}
-
-	return labels
+	return npaths
 }

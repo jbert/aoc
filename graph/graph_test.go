@@ -5,6 +5,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/jbert/aoc/matrix"
 	"github.com/jbert/fun"
 	"github.com/stretchr/testify/assert"
 )
@@ -71,4 +72,61 @@ func TestRemoveAddEdge(t *testing.T) {
 	a.Equal(5, len(g.Edges()))
 	g.AddEdge(Edge[string]{"B", "C", 1.0})
 	a.Equal(5, len(g.Edges()))
+}
+
+func TestAdjMatrix(t *testing.T) {
+	a := assert.New(t)
+
+	edges := []Edge[string]{
+		{"A", "B", 0},
+		{"B", "C", 0},
+		{"B", "D", 0},
+		{"C", "E", 0},
+		{"D", "E", 0},
+	}
+
+	tcs := []struct {
+		g        *Graph[string]
+		vorder   []string
+		expected matrix.Mat
+	}{{NewFromEdges([]Edge[string]{
+		{"A", "B", 0},
+	}, false),
+		[]string{"A", "B"},
+		matrix.NewFromRows([][]int{
+			{0, 1},
+			{0, 0},
+		})},
+		{NewFromEdges([]Edge[string]{
+			{"A", "B", 0},
+			{"A", "C", 0},
+			{"B", "C", 0},
+		}, false),
+			[]string{"A", "B", "C"},
+			matrix.NewFromRows([][]int{
+				{0, 1, 1},
+				{0, 0, 1},
+				{0, 0, 0},
+			})},
+		{NewFromEdges(edges, false),
+			[]string{"A", "B", "C", "D", "E"},
+			matrix.NewFromRows([][]int{
+				{0, 1, 0, 0, 0},
+				{0, 0, 1, 1, 0},
+				{0, 0, 0, 0, 1},
+				{0, 0, 0, 0, 1},
+				{0, 0, 0, 0, 0},
+			}),
+		},
+	}
+
+	for i, tc := range tcs {
+		order := make(map[string]int)
+		for i, v := range tc.vorder {
+			order[v] = i
+		}
+		got := tc.g.AdjacencyMatrixFromOrder(order)
+		a.Equal(tc.expected, got, fmt.Sprintf("%d: adj", i))
+
+	}
 }

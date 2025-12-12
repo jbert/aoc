@@ -31,8 +31,29 @@ func NewFromFunc[A any](w, h int, f func(pts.P2) A) Grid[A] {
 	return g
 }
 
+/*
+func (g Grid[A]) Reorder(order []int) Grid[A] {
+	ng := New[A](g.Width(), g.Height())
+	if len(order) != g.Width() {
+		panic("wtf")
+	}
+	for i := range g.Width() {
+		ii := order[i]
+		for j := range g.Height() {
+			jj := order[j]
+			ng[jj][ii] = g[j][i]
+		}
+	}
+	return ng
+}
+*/
+
 func (g Grid[A]) Rows() [][]A {
 	return g
+}
+
+func (g Grid[A]) Copy() Grid[A] {
+	return NewFromRows(g.Rows())
 }
 
 func (g Grid[A]) Row(y int) []A {
