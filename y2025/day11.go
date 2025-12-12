@@ -72,9 +72,12 @@ func (d *Day11) Run(out io.Writer, lines []string) error {
 	*/
 
 	// There is a path from fft->dac, but not one from dac->fft
+
+	fmt.Printf("JB1\n")
 	s2f := countPaths("svr", "fft", g.Copy())
+	fmt.Printf("JB2: %d\n", s2f)
 	f2d := countPaths("fft", "dac", g.Copy())
-	fmt.Printf("------\n")
+	fmt.Printf("JB3: %d\n", f2d)
 	d2o := countPaths("dac", "out", g.Copy())
 	fmt.Printf("s2f %d f2d %d d2o %d\n", s2f, f2d, d2o)
 	fmt.Printf("Part 2: %d\n", s2f*f2d*d2o)
@@ -83,27 +86,8 @@ func (d *Day11) Run(out io.Writer, lines []string) error {
 }
 
 func countPaths(fr string, to string, g *graph.Graph[string]) int {
-	count := 0
-	vPath, err := astar.Astar(fr, to, g, func(string) float64 { return 1.0 })
-	if err != nil {
-		// fmt.Printf("NP\n")
-		return 0
-	}
-	// fmt.Printf("%v\n", vPath)
-	count += 1
-	for i, eto := range vPath {
-		if i == 0 {
-			continue
-		}
-		efr := vPath[i-1]
-		g.RemoveEdge(efr, eto)
-		ce := countPaths(fr, to, g)
-		// fmt.Printf("RM (%v->%v): %d\n", efr, eto, ce)
-		// fmt.Printf("AD %v %v\n", efr, eto)
-		g.AddEdge(graph.Edge[string]{From: efr, To: eto})
-		count += ce
-	}
-	return count
+	paths := getPaths(fr, to, *g, 0)
+	return len(paths)
 }
 
 func pathToStr(p graph.Path[string]) string {
@@ -114,14 +98,17 @@ func strToPath(s string) graph.Path[string] {
 	return strings.Split(s, "-")
 }
 
-func getPaths(fr string, to string, g graph.Graph[string]) []graph.Path[string] {
+func getPaths(fr string, to string, g graph.Graph[string], depth int) []graph.Path[string] {
+	fmt.Printf("GP >>> %d\n", depth)
 	pathStrs := set.New[string]()
 
 	starPath, err := astar.Astar(fr, to, g, func(string) float64 { return 1.0 })
 	if err != nil {
 		return fun.Map(strToPath, pathStrs.ToList())
 	}
+	// if depth == 0 {
 	fmt.Printf("%v\n", starPath)
+	// }
 	pathStrs.Insert(pathToStr(starPath))
 	for i, eto := range starPath {
 		if i == 0 {
@@ -129,9 +116,15 @@ func getPaths(fr string, to string, g graph.Graph[string]) []graph.Path[string] 
 		}
 		efr := starPath[i-1]
 		g.RemoveEdge(efr, eto)
-		cPaths := getPaths(fr, to, g)
+		fmt.Printf("RM: %s -> %s\n", efr, eto)
+		cPaths := getPaths(fr, to, g, depth+1)
 		g.AddEdge(graph.Edge[string]{From: efr, To: eto})
+		fmt.Printf("AD: %s -> %s\n", efr, eto)
 		pathStrs = pathStrs.Union(set.NewFromList(fun.Map(pathToStr, cPaths)))
+		if depth == 0 {
+			fmt.Printf("%d\n", pathStrs.Size())
+		}
 	}
+	fmt.Printf("GP <<< %d\n", depth)
 	return fun.Map(strToPath, pathStrs.ToList())
 }
