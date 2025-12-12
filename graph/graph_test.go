@@ -47,3 +47,28 @@ func TestVertices(t *testing.T) {
 	sort.Strings(expected)
 	a.Equal(expected, ess)
 }
+
+func TestRemoveAddEdge(t *testing.T) {
+	a := assert.New(t)
+
+	edges := []Edge[string]{
+		{"A", "B", 0},
+		{"B", "C", 0},
+		{"B", "D", 0},
+		{"C", "E", 0},
+		{"D", "E", 0},
+	}
+	g := NewFromEdges(edges, false)
+	a.Equal(5, len(g.Edges()))
+	err := g.RemoveEdge("B", "C")
+	a.Equal(4, len(g.Edges()))
+	a.Nil(err, "no error")
+	err = g.RemoveEdge("B", "C")
+	a.Equal(4, len(g.Edges()))
+	a.Equal(ErrNotFound, err, "correct error")
+
+	g.AddEdge(Edge[string]{"B", "C", 1.0})
+	a.Equal(5, len(g.Edges()))
+	g.AddEdge(Edge[string]{"B", "C", 1.0})
+	a.Equal(5, len(g.Edges()))
+}

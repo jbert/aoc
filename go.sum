@@ -5,6 +5,10 @@ github.com/jbert/fun v0.0.0-20230909115039-6ecdce88937f h1:H+Ywu2G/55qjIaWI8EUMK
 github.com/jbert/fun v0.0.0-20230909115039-6ecdce88937f/go.mod h1:iyW4wHR6HBvHOLMtTXB4griYhGmLBRhA3965Z7vrfGQ=
 github.com/jbert/set v0.0.0-20230625094359-01b0447ca81b h1:G53a9tjyt/fEhNoEdmFx/MX0sFvos39mGafn4T79aHk=
 github.com/jbert/set v0.0.0-20230625094359-01b0447ca81b/go.mod h1:KxpickMv3oACe5pYvEFw3eoF0rAXWQJnXy637WcdhoA=
+github.com/jbert/set v0.0.0-20251211102318-70fdfca0bd28 h1:DqbhkGk1cH+Lyt2lXfQLJO/D+StBct/95xavKu1wefk=
+github.com/jbert/set v0.0.0-20251211102318-70fdfca0bd28/go.mod h1:KxpickMv3oACe5pYvEFw3eoF0rAXWQJnXy637WcdhoA=
+github.com/jbert/set v0.0.0-20251211102937-0c52b17f568a h1:g3ExiiJamOLRAmtmTyWIQTTKbIriOxgjJL4vp0QiQjg=
+github.com/jbert/set v0.0.0-20251211102937-0c52b17f568a/go.mod h1:+/lkVsYv/+JUoYOmIu652CyED/K9BCUDuLfM6dySqgA=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

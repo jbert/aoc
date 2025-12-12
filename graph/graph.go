@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -24,6 +25,11 @@ func (e Edge[V]) Reverse() Edge[V] {
 }
 
 type Graph[V comparable] map[V]set.Set[Edge[V]]
+
+func (g Graph[V]) Copy() *Graph[V] {
+	es := g.Edges()
+	return NewFromEdges(es, false)
+}
 
 func (g Graph[V]) ToDot(w io.Writer, name string) {
 	// TODO: support directed/undirected properly (in code and Dot)
@@ -65,9 +71,9 @@ func (g Graph[V]) String() string {
 func NewFromEdges[V comparable](edges []Edge[V], undirected bool) *Graph[V] {
 	g := Graph[V]{}
 	for _, edge := range edges {
-		g.addEdge(edge)
+		g.AddEdge(edge)
 		if undirected {
-			g.addEdge(edge.Reverse())
+			g.AddEdge(edge.Reverse())
 		}
 	}
 	return &g
@@ -81,7 +87,7 @@ func (g Graph[V]) addVertex(v V) {
 	g[v] = s
 }
 
-func (g Graph[V]) addEdge(e Edge[V]) {
+func (g Graph[V]) AddEdge(e Edge[V]) {
 	s, ok := g[e.From]
 	if !ok {
 		s = set.New[Edge[V]]()
@@ -119,6 +125,21 @@ func (g Graph[V]) Weight(from, to V) float64 {
 	return weight
 }
 
+var ErrNotFound = errors.New("not found")
+
+func (g *Graph[V]) RemoveEdge(fr V, to V) error {
+	s, ok := (*g)[fr]
+	if !ok {
+		return ErrNotFound
+	}
+	l := fun.Filter(func(e Edge[V]) bool { return !(e.From == fr && e.To == to) }, s.ToList())
+	if len(l) == s.Size() {
+		return ErrNotFound
+	}
+	(*g)[fr] = set.NewFromList(l)
+	return nil
+}
+
 func (g Graph[V]) Remove(v V) (*Graph[V], []Edge[V]) {
 	edges := g.Edges()
 	removedEdges := fun.Filter(func(e Edge[V]) bool {
@@ -137,10 +158,32 @@ func (g Graph[V]) Remove(v V) (*Graph[V], []Edge[V]) {
 	return g2, removedEdges
 }
 
-type Path[V comparable] []Edge[V]
+type Path[V comparable] []V
 
-func (p Path[V]) Prepend(e Edge[V]) Path[V] {
-	return append(Path[V]{e}, p...)
+func (p Path[V]) Equal(q Path[V]) bool {
+	if len(p) != len(q) {
+		return false
+	}
+	for i := range p {
+		if p[i] != q[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func (p Path[V]) Contains(v V) bool {
+	for _, vp := range p {
+		// Could optimise here if we special case start or end
+		if vp == v {
+			return true
+		}
+	}
+	return false
+}
+
+func (p Path[V]) Prepend(v V) Path[V] {
+	return append(Path[V]{v}, p...)
 }
 
 func (g Graph[V]) FindAllPaths(fr V, to V) []Path[V] {
@@ -152,7 +195,7 @@ func (g Graph[V]) FindAllPaths(fr V, to V) []Path[V] {
 	var allPaths []Path[V]
 	steps.ForEach(func(e Edge[V]) {
 		rest := g.FindAllPaths(e.To, to)
-		paths := fun.Map(func(p Path[V]) Path[V] { return p.Prepend(e) }, rest)
+		paths := fun.Map(func(p Path[V]) Path[V] { return p.Prepend(e.From) }, rest)
 		for _, p := range paths {
 			allPaths = append(allPaths, p)
 		}

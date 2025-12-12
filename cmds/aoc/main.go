@@ -22,6 +22,7 @@ func main() {
 	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 	var memprofile = flag.String("memprofile", "", "write mem profile to file")
 	var numYear = flag.Int("year", time.Now().Year(), "year to run (default current year)")
+	var numTest = flag.Int("t", 0, "test data to run (default actual input)")
 	flag.Parse()
 	args := flag.Args()
 	if *cpuprofile != "" {
@@ -45,17 +46,12 @@ func main() {
 		fmt.Printf("Wrote heap profile")
 	}
 
-	if len(args) != 2 {
-		log.Fatalf("Must have at exactly 2 args, got [%v]", args)
+	if len(args) != 1 {
+		log.Fatalf("Must have at exactly 1 args, got [%v]", args)
 	}
 	day, err := strconv.Atoi(args[0])
 	if err != nil {
 		log.Fatalf("Couldn't parse [%s] as number: %s", args[1], err)
-	}
-
-	test := true
-	if args[1] == "false" {
-		test = false
 	}
 
 	years := map[int]year.Year{
@@ -68,7 +64,7 @@ func main() {
 		log.Fatalf("can't find year [%d]", *numYear)
 	}
 
-	err = aoc.Run(year, day, test, os.Stdout)
+	err = aoc.Run(year, day, *numTest, os.Stdout)
 	if err != nil {
 		log.Fatalf("Failed to run: %s", err)
 	}

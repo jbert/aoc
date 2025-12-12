@@ -18,9 +18,9 @@ type Day interface {
 	Run(out io.Writer, lines []string) error
 }
 
-func Run(y year.Year, dayNum int, test bool, out io.Writer) error {
+func Run(y year.Year, dayNum int, test int, out io.Writer) error {
 	lines := getLines(y.WorkDir(), dayNum, test)
-	if test {
+	if test > 0 {
 		fmt.Fprintf(out, "lines are %v\n", lines)
 	}
 
@@ -33,7 +33,7 @@ func Run(y year.Year, dayNum int, test bool, out io.Writer) error {
 	return nil
 }
 
-func getLines(workDir string, day int, test bool) []string {
+func getLines(workDir string, day int, test int) []string {
 	fname := dataFileName(workDir, day, test)
 	buf, err := os.ReadFile(fname)
 	if err != nil {
@@ -93,10 +93,12 @@ func LineGroups(lines []string) [][]string {
 	return lgs
 }
 
-func dataFileName(workDir string, day int, test bool) string {
+func dataFileName(workDir string, day int, test int) string {
 	suffix := ""
-	if test {
+	if test == 1 {
 		suffix = "-test"
+	} else if test > 1 {
+		suffix = fmt.Sprintf("-test-%d", test)
 	}
 	return fmt.Sprintf("%s/day%d%s.txt", workDir, day, suffix)
 }
