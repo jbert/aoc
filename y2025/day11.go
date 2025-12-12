@@ -6,10 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jbert/aoc/astar"
 	"github.com/jbert/aoc/graph"
 	"github.com/jbert/aoc/year"
-	"github.com/jbert/fun"
 	"github.com/jbert/set"
 )
 
@@ -40,38 +38,7 @@ func (d *Day11) Run(out io.Writer, lines []string) error {
 	g.ToDot(os.Stdout, "reactor")
 
 	paths := g.FindAllPaths("you", "out")
-	// for _, p := range paths {
-	// fmt.Printf("%v\n", p)
-	// }
 	fmt.Printf("Part 1: %d\n", len(paths))
-
-	/*
-		paths = g.FindAllPaths("svr", "out")
-		paths = fun.Filter(func(p graph.Path[string]) bool { return p.Contains("dac") }, paths)
-		paths = fun.Filter(func(p graph.Path[string]) bool { return p.Contains("fft") }, paths)
-		fmt.Printf("Part 2: %d\n", len(paths))
-	*/
-	/*
-			fmt.Printf("JB1\n")
-			s2d := g.FindAllPaths("svr", "dac")
-			fmt.Printf("JB2\n")
-			d2f := g.FindAllPaths("dac", "fft")
-			fmt.Printf("JB3\n")
-			f2o := g.FindAllPaths("fft", "out")
-			fmt.Printf("JB4\n")
-
-			s2f := g.FindAllPaths("svr", "fft")
-			fmt.Printf("JB5\n")
-			f2d := g.FindAllPaths("fft", "dac")
-			fmt.Printf("JB6\n")
-			d2o := g.FindAllPaths("dac", "out")
-			fmt.Printf("JB7\n")
-
-		count := len(s2d)*len(d2f)*len(f2o) + len(s2f)*len(f2d)*len(d2o)
-		fmt.Printf("Part 2: %d\n", count)
-	*/
-
-	// There is a path from fft->dac, but not one from dac->fft
 
 	fmt.Printf("JB1\n")
 	s2f := countPaths("svr", "fft", g.Copy())
@@ -86,45 +53,34 @@ func (d *Day11) Run(out io.Writer, lines []string) error {
 }
 
 func countPaths(fr string, to string, g *graph.Graph[string]) int {
-	paths := getPaths(fr, to, *g, 0)
-	return len(paths)
+	labels := labelVertices(fr, to, g)
+	fmt.Printf("labels: %+v\n", labels)
+	return labels[to]
 }
 
-func pathToStr(p graph.Path[string]) string {
-	return strings.Join(p, "-")
-}
+func labelVertices(fr string, to string, g *graph.Graph[string]) map[string]int {
+	labels := make(map[string]int)
 
-func strToPath(s string) graph.Path[string] {
-	return strings.Split(s, "-")
-}
-
-func getPaths(fr string, to string, g graph.Graph[string], depth int) []graph.Path[string] {
-	fmt.Printf("GP >>> %d\n", depth)
-	pathStrs := set.New[string]()
-
-	starPath, err := astar.Astar(fr, to, g, func(string) float64 { return 1.0 })
-	if err != nil {
-		return fun.Map(strToPath, pathStrs.ToList())
+	addTo := func(v string, n int) {
+		nn := labels[v]
+		nn++
+		labels[v] = nn
 	}
-	// if depth == 0 {
-	fmt.Printf("%v\n", starPath)
-	// }
-	pathStrs.Insert(pathToStr(starPath))
-	for i, eto := range starPath {
-		if i == 0 {
-			continue
+	addOne := func(v string) { addTo(v, 1) }
+	todo := set.NewFromList[string](g.Neighbours(fr))
+	todo.ForEach(addOne)
+
+	for todo.Size() > 0 {
+		v, err := todo.Take()
+		if err != nil {
+			panic("take on non-empty set failed")
 		}
-		efr := starPath[i-1]
-		g.RemoveEdge(efr, eto)
-		fmt.Printf("RM: %s -> %s\n", efr, eto)
-		cPaths := getPaths(fr, to, g, depth+1)
-		g.AddEdge(graph.Edge[string]{From: efr, To: eto})
-		fmt.Printf("AD: %s -> %s\n", efr, eto)
-		pathStrs = pathStrs.Union(set.NewFromList(fun.Map(pathToStr, cPaths)))
-		if depth == 0 {
-			fmt.Printf("%d\n", pathStrs.Size())
+		ns := g.Neighbours(v)
+		for _, nv := range ns {
+			addTo(nv, labels[v])
+			todo.Insert(nv)
 		}
 	}
-	fmt.Printf("GP <<< %d\n", depth)
-	return fun.Map(strToPath, pathStrs.ToList())
+
+	return labels
 }
