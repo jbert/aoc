@@ -9,51 +9,23 @@ import (
 	"github.com/jbert/aoc/year"
 	"github.com/jbert/fun"
 	"github.com/jbert/set"
-	"gonum.org/v1/gonum/mat"
 )
 
 type Day10 struct{ year.Year }
 
 type machine struct {
-	wanted               int
-	wiring               []int
-	joltages             []int
-	numLightsAndJoltages int
+	wanted    int
+	wiring    []int
+	joltages  []int
+	numLights int
 }
 
 func (m machine) String() string {
-	return fmt.Sprintf("%0*b: %v {%v} [%d]", m.numLightsAndJoltages, m.wanted, m.wiring, m.joltages, m.numLightsAndJoltages)
+	return fmt.Sprintf("%0*b: %v {%v} [%d]", m.numLights, m.wanted, m.wiring, m.joltages, m.numLights)
 }
 
 func (m machine) numButtons() int {
 	return len(m.wiring)
-}
-
-func (m machine) getMatrix() mat.Matrix {
-	fmt.Printf("------\nGM: %s\n", m)
-	mt := mat.NewDense(m.numLightsAndJoltages, m.numButtons(), nil)
-	for col, button := range m.wiring {
-		bs, _ := intToBools(button, m.numLightsAndJoltages)
-		bs = fun.Reverse(bs)
-		for row, b := range bs {
-			fmt.Printf("row %d col %d\n", row, col)
-			if b {
-				mt.Set(row, col, 1)
-			} else {
-				mt.Set(row, col, 0)
-			}
-		}
-	}
-	return mt
-}
-
-func (m machine) getJoltageVec() mat.Vector {
-	fj := make([]float64, m.numLightsAndJoltages)
-	for i, jlt := range m.joltages {
-		fj[i] = float64(jlt)
-	}
-	v := mat.NewVecDense(m.numLightsAndJoltages, fj)
-	return v
 }
 
 func parseWanted(s string) int {
@@ -91,16 +63,12 @@ func machineFromString(s string) *machine {
 	wiring := fun.Map(parseWiring, bits[1:len(bits)-1])
 	jStr := bits[len(bits)-1]
 	joltages := aoc.StringToInts(jStr[1 : len(jStr)-1])
-	m := &machine{
-		wanted:               wanted,
-		wiring:               wiring,
-		joltages:             joltages,
-		numLightsAndJoltages: len(bits[0]) - 2,
+	return &machine{
+		wanted:    wanted,
+		wiring:    wiring,
+		joltages:  joltages,
+		numLights: len(bits[0]) - 2,
 	}
-	if len(joltages) != m.numLightsAndJoltages {
-		panic(fmt.Sprintf("----\n%s\ndifferent joltages [%d] to lights [%d]\n", s, len(joltages), m.numLightsAndJoltages))
-	}
-	return m
 }
 
 func popcount(n int) int {
@@ -158,10 +126,6 @@ func (m machine) bestPress() int {
 	return bestPresses
 }
 
-func matString(X mat.Matrix) string {
-	return fmt.Sprintf("%v", mat.Formatted(X, mat.Prefix(""), mat.Squeeze()))
-}
-
 func (d *Day10) Run(out io.Writer, lines []string) error {
 	fmt.Fprintf(out, "Running\n")
 	ms := fun.Map(machineFromString, lines)
@@ -171,21 +135,7 @@ func (d *Day10) Run(out io.Writer, lines []string) error {
 	presses := fun.Map(func(m *machine) int { return m.bestPress() }, ms)
 	fmt.Printf("presses: %v\n", presses)
 
-	for _, m := range ms {
-		mt := m.getMatrix()
-		fmt.Printf("MT\n%s\n", matString(mt))
-		v := m.getJoltageVec()
-		fmt.Printf("V %v\n", v)
-		var a mat.VecDense
-		err := a.SolveVec(mt, v)
-		if err != nil {
-			fmt.Printf("Can't solve: %s\n", err)
-			continue
-		}
-		fmt.Printf("A %v\n", a)
-	}
 	fmt.Printf("Part 1: %d\n", fun.Sum(presses))
-
 	// fmt.Printf("Part 2: %d\n", fun.Sum(joltages))
 
 	return nil
