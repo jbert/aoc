@@ -16,12 +16,18 @@ type Day10 struct{ year.Year }
 type machine struct {
 	wanted    int
 	wiring    []int
+	buttons   []button
 	joltages  []int
 	numLights int
 }
 
 func (m machine) String() string {
 	return fmt.Sprintf("%0*b: %v {%v} [%d]", m.numLights, m.wanted, m.wiring, m.joltages, m.numLights)
+}
+
+func (m machine) numJoltages() int {
+	// They are equal
+	return m.numLights
 }
 
 func (m machine) numButtons() int {
@@ -42,12 +48,15 @@ func parseWanted(s string) int {
 	return n
 }
 
-func parseWiring(s string) int {
+func parseWiring(s string) set.Set[int] {
 	s = s[1 : len(s)-1]
-	toSet := set.NewFromList(aoc.StringToInts(s))
+	return set.NewFromList(aoc.StringToInts(s))
+}
+
+func indicesToInt(indices set.Set[int]) int {
 	n := 0
-	for !toSet.IsEmpty() {
-		v, err := toSet.Take()
+	for !indices.IsEmpty() {
+		v, err := indices.Take()
 		if err != nil {
 			panic("take from empty set failed")
 		}
@@ -60,12 +69,19 @@ func parseWiring(s string) int {
 func machineFromString(s string) *machine {
 	bits := strings.Split(s, " ")
 	wanted := parseWanted(bits[0])
-	wiring := fun.Map(parseWiring, bits[1:len(bits)-1])
+	var buttons []button
+	butbits := bits[1 : len(bits)-1]
+	for i, l := range butbits {
+		s := parseWiring(l)
+		buttons = append(buttons, button{id: i, joltages: s})
+
+	}
 	jStr := bits[len(bits)-1]
 	joltages := aoc.StringToInts(jStr[1 : len(jStr)-1])
 	return &machine{
 		wanted:    wanted,
-		wiring:    wiring,
+		wiring:    fun.Map(func(b button) int { return indicesToInt(b.joltages) }, buttons),
+		buttons:   buttons,
 		joltages:  joltages,
 		numLights: len(bits[0]) - 2,
 	}
@@ -107,7 +123,60 @@ func (m machine) getPress(bs []bool) int {
 	return result
 }
 
+// The joltages which a button presses
+type button struct {
+	id       int
+	joltages set.Set[int]
+}
+
+func (b button) addsTo(ij int) bool {
+	return b.joltages.Contains(ij)
+}
+
+func (m machine) buttonsForJoltage(ij int) []button {
+	var bs []button
+	for _, b := range m.buttons {
+		if b.addsTo(ij) {
+			bs = append(bs, b)
+		}
+	}
+	return bs
+}
+
+type constraint struct {
+	total   int
+	buttons set.Set[int]
+}
+
+type press []int
+
+func (c constraint) compatible(ps presses) bool {
+	return false
+}
+
+func (m machine) bestJoltagePress() int {
+	buttonLimits := make([]int, m.numButtons)
+	for ib := range buttonLimits {
+		indices := intToIndices(m.wiring[ib])
+		var joltages []int
+	}
+	return 0
+}
+
+// given a 'presses', we can:
+// - return the single-elt list of this press if it matches joltages
+// - return empty list and do nothing if it is joltage
+// - else it is below-joltage and we can try adding each press:
+//   - and recurse, getting the list of successful presses
+//   - accumulate this list and return
+//
+// - optionally filter for least presses prior
+
+func (m machine) getSuccessfulPress []press
 func (m machine) bestPress() int {
+	// we can come up with a list of max values (constraints) for buttons
+	// (start with the min joltage for each button)
+	//
 	bestPresses := m.numButtons() + 1
 	for n := range 1 << m.numButtons() {
 		bs, presses := intToBools(n, m.numButtons())
@@ -136,7 +205,11 @@ func (d *Day10) Run(out io.Writer, lines []string) error {
 	fmt.Printf("presses: %v\n", presses)
 
 	fmt.Printf("Part 1: %d\n", fun.Sum(presses))
-	// fmt.Printf("Part 2: %d\n", fun.Sum(joltages))
+
+	presses = fun.Map(func(m *machine) int { return m.bestJoltagePress() }, ms)
+	fmt.Printf("presses: %v\n", presses)
+
+	fmt.Printf("Part 2: %d\n", fun.Sum(presses))
 
 	return nil
 }
