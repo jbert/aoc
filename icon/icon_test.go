@@ -6,20 +6,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLinear(t *testing.T) {
+func TestSolve(t *testing.T) {
 	a := assert.New(t)
+	xPlusYEq0 := NewAffine([]Term{{1, "x"}, {1, "y"}}, 0)
+	YEq1 := NewAffine([]Term{{1, "y"}}, 1)
 	tcs := []struct {
-		name     string
-		terms    []Term
-		expected []Term
+		name        string
+		constraints []Constraint
+		hasSoln     bool
+		expected    []Term
 	}{
-		{"id", []Term{{1, "x"}, {2, "y"}}, []Term{{1, "x"}, {2, "y"}}},
-		{"sort", []Term{{2, "y"}, {1, "x"}}, []Term{{1, "x"}, {2, "y"}}},
-		{"coalesce", []Term{{2, "x"}, {1, "x"}}, []Term{{3, "x"}}},
-		{"zero", []Term{{-1, "x"}, {1, "x"}}, []Term{{0, "x"}}},
+		{
+			"hello world",
+			[]Constraint{xPlusYEq0, YEq1},
+			true,
+			[]Term{{-1, "x"}, {1, "y"}},
+		},
 	}
+
 	for _, tc := range tcs {
-		got := NewLinear(tc.terms).Terms()
-		a.Equal(tc.expected, got, tc.name)
+		soln, err := Solve(tc.constraints)
+		if tc.hasSoln {
+			a.Equal(tc.expected, soln, tc.name)
+		} else {
+			a.Equal(err, ErrNoSoln)
+		}
 	}
 }
