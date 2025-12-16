@@ -11,7 +11,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/jbert/set v0.0.0-20251211102937-0c52b17f568a // indirect
+	github.com/jbert/set v0.0.0-20251215155530-33586da5be0b // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	gonum.org/v1/gonum v0.16.0 // indirect

@@ -18,3 +18,5 @@
 - make grid.Grid use points only (not i, j)
 
 - write aoc.go in terms of NewFromFunc
+
+- add 'seq' support to `set`
