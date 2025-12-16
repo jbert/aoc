@@ -16,7 +16,7 @@ func TestLinear(t *testing.T) {
 		{"id", []Term{{1, "x"}, {2, "y"}}, []Term{{1, "x"}, {2, "y"}}},
 		{"sort", []Term{{2, "y"}, {1, "x"}}, []Term{{1, "x"}, {2, "y"}}},
 		{"coalesce", []Term{{2, "x"}, {1, "x"}}, []Term{{3, "x"}}},
-		{"zero", []Term{{-1, "x"}, {1, "x"}}, []Term{}},
+		{"zero", []Term{{-1, "x"}, {1, "x"}}, []Term{{0, "x"}}},
 	}
 	for _, tc := range tcs {
 		got := NewLinear(tc.terms).Terms()

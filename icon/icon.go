@@ -18,27 +18,29 @@ func CmpTerm(a Term, b Term) int {
 	return a.Coeff - b.Coeff
 }
 
-type Linear map[Var]Term
+type Vec map[Var]int
+
+// type (v Vec) Dot(u Vec) int {
+// }
+
+type Linear Vec
 
 func NewLinear(terms []Term) Linear {
-	m := make(map[Var]Term)
+	m := make(map[Var]int)
 	for _, t := range terms {
-		tt, ok := m[t.Var]
+		c, ok := m[t.Var]
 		if ok {
-			t.Coeff += tt.Coeff
+			t.Coeff += c
 		}
-		delete(m, t.Var)
-		if t.Coeff != 0 {
-			m[t.Var] = t
-		}
+		m[t.Var] = t.Coeff
 	}
 	return m
 }
 
 func (l Linear) Terms() []Term {
 	ts := make([]Term, 0)
-	for _, t := range l {
-		ts = append(ts, t)
+	for v, c := range l {
+		ts = append(ts, Term{Coeff: c, Var: v})
 	}
 	slices.SortFunc(ts, CmpTerm)
 	return ts
